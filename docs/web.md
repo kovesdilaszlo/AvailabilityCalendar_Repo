@@ -1,92 +1,8 @@
-## 1. Core Functionality
-
-### 1.1 Personal Mode
-
-In personal mode, the system behaves as a personal calendar application.
-
-**Main features**
-- display own events
-- create events
-- update events
-- delete events
-- validate date/time input
-- show the current period in the selected view
-
-### 1.2 Shared Availability Mode
-
-In shared mode, the system behaves as a coordination tool.
-
-**Main features**
-- resolve selected users
-- calculate the common free intervals
-- apply the minimum duration filter
-- optionally split free intervals into meeting-sized slots
-- display only valid shared free time
-- create common events directly from a shared free slot
-
-### 1.3 Privacy Principle
-
-The system intentionally does not expose other users’ event details in shared mode. It displays only whether time is free and which intervals are suitable.
-
-### 1.4 Event Authorization
-
-Update and delete operations are restricted to the creator of the event.
-
-### 1.5 Input Validation
-
-Validation exists at multiple levels:
-
-- view model validation for UI form input
-- service-level validation for empty titles
-- domain-level validation for invalid time ranges
-- controller-level validation for end time not being earlier than start time
-
-### 1.6 Calendar Range Resolution
-
-The application computes different time ranges depending on the selected view:
-
-- **Day** → one calendar day
-- **Week** → Monday-based 7-day interval
-- **Month** → first day of month until next month
-
-These ranges are used both for event retrieval and free-time calculation.
-
-### 1.7 Cell Generation
-
-The system generates UI cells based on the selected view:
-
-- **Day** → 1 cell
-- **Week** → 7 cells
-- **Month** → 42 cells
-
-The month view uses a fixed 6×7 grid.
-
-### 1.8 Month Grid Rationale
-
-The month view contains 42 cells because:
-
-- a month may begin late in a week
-- a month may require six visual rows
-- a fixed 6×7 grid keeps the layout stable
-
-### 1.9 Month View Interval Splitting
-
-In month view, free intervals that span across day boundaries are visually split into day-specific textual fragments.
-
-Example:
-- shared free interval: `2026-03-18 18:00 -> 2026-03-19 14:00`
-
-Displayed as:
-- `03.18` → `18:00-23:59`
-- `03.19` → `00:00-14:00`
-
-This prevents misleading rendering where a multi-day interval would otherwise appear only on its start date.
-
-## 2. Web Layer and UI Behavior
+## 1. Web Layer and UI Behavior
 
 The Web layer contains controllers, page-level view models, Razor views, and UI helpers.
 
-### 2.1 Controllers
+### 1.1 Controllers
 
 #### CalendarController
 
@@ -153,7 +69,7 @@ The Web layer contains controllers, page-level view models, Razor views, and UI 
 **Role**
 - handles login/logout flow through ASP.NET Core Identity
 
-### 2.2 Web Enums
+### 1.2 Web Enums
 
 #### CalendarViewType
 
@@ -165,7 +81,7 @@ The Web layer contains controllers, page-level view models, Razor views, and UI 
 **Role**
 - determines how the calendar should be rendered and which date range should be used
 
-### 2.3 Web ViewModels
+### 1.3 Web ViewModels
 
 #### CalendarPageViewModel
 
@@ -253,7 +169,7 @@ The Web layer contains controllers, page-level view models, Razor views, and UI 
 **Role**
 - represents one rendered date cell in day, week, or month layouts
 
-### 2.4 Web Extensions
+### 1.4 Web Extensions
 
 #### UserExtensions
 
@@ -263,7 +179,7 @@ The Web layer contains controllers, page-level view models, Razor views, and UI 
 **Role**
 - extracts and validates the authenticated GUID user identifier from the claims principal
 
-### 2.5 Razor Views
+### 1.5 Razor Views
 
 #### Home/Index.cshtml
 - simple landing view with navigation buttons to calendar or login
@@ -298,7 +214,7 @@ The Web layer contains controllers, page-level view models, Razor views, and UI 
 - login/logout links
 - global calendar cell card styling
 
-### 2.6 UI Rendering Model
+### 1.6 UI Rendering Model
 
 The UI concept is based on three views:
 
@@ -319,7 +235,7 @@ The UI concept is based on three views:
 - 42-cell fixed grid
 - text-based display of events or split free intervals inside day boxes
 
-### 2.7 24-hour UI Specification
+### 1.7 24-hour UI Specification
 
 For the extended UI design, day and week views use a **00:00–24:00** scale.
 
@@ -341,7 +257,7 @@ HeightPercent = (durationMinutes / 1440) * 100
 - Week view: previous/next week
 - Month view: previous/next month
 
-### 2.8 Selection UI
+### 1.8 Selection UI
 
 The visible user selector uses a chip-style interface:
 
@@ -352,7 +268,7 @@ The visible user selector uses a chip-style interface:
 
 Technically, the chip interface is still based on checkbox inputs, but rendered with a custom visual style.
 
-### 2.9 Auto-submit Behavior
+### 1.9 Auto-submit Behavior
 
 The selection form updates automatically when the user changes:
 
@@ -363,7 +279,7 @@ The selection form updates automatically when the user changes:
 
 This is handled client-side through JavaScript by listening to `change` events and submitting the surrounding form automatically.
 
-### 2.10 Modal Interaction Model
+### 1.10 Modal Interaction Model
 
 The application uses Bootstrap modal dialogs for interactive actions.
 
@@ -384,7 +300,7 @@ Available in shared mode for shared free intervals and slot blocks.
 - confirm creation
 - create an event that includes all currently selected users as participants
 
-### 2.11 Redirect Preservation
+### 1.11 Redirect Preservation
 
 After update, delete, or shared-slot event creation, the controller preserves:
 
@@ -396,7 +312,7 @@ After update, delete, or shared-slot event creation, the controller preserves:
 
 This keeps the user in the same UI context instead of forcing a reset to a default state.
 
-### 2.12 Web Layer Inventory
+### 1.12 Web Layer Inventory
 
 ```
 AvailabilityCalendar.Web

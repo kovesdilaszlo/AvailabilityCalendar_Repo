@@ -3,17 +3,15 @@ using AvailabilityCalendar.Application.Interfaces;
 using AvailabilityCalendar.Application.Services;
 using AvailabilityCalendar.Domain.Entities;
 using Moq;
+using Xunit;
 
-namespace AvailabilityCalendar.Tests;
+namespace AvailabilityCalendar.Tests.ApplicationTests;
 
 /// <summary>
-/// Tests core behaviors of EventService.CreateEventAsync.
+/// Tests event creation behavior in EventService.
 /// </summary>
 public class EventServiceCreateTests
 {
-    /// <summary>
-    /// Verifies title trimming and participant deduplication during creation.
-    /// </summary>
     [Fact]
     public async Task CreateEventAsync_Should_TrimTitle_And_AddCreatorAndDistinctParticipants()
     {
@@ -73,9 +71,45 @@ public class EventServiceCreateTests
         Assert.Equal(expected, participantIds);
     }
 
-    /// <summary>
-    /// Verifies creation fails when the title is empty or whitespace.
-    /// </summary>
+    [Fact]
+    public async Task CreateEventAsync_Should_AddOnlyCreator_WhenParticipantIdsIsEmpty()
+    {
+        // Arrange
+        var repoMock = new Mock<IEventRepository>();
+        Event? savedEvent = null;
+
+        repoMock
+            .Setup(r => r.AddAsync(It.IsAny<Event>()))
+            .Callback<Event>(e => savedEvent = e)
+            .Returns(Task.CompletedTask);
+
+        var service = new EventService(repoMock.Object);
+        var currentUserId = Guid.NewGuid();
+
+        var command = new CreateEventCommand
+        {
+            Title = "Solo event",
+            Start = new DateTime(2026, 3, 23, 9, 0, 0),
+            End = new DateTime(2026, 3, 23, 10, 0, 0),
+            CurrentUserId = currentUserId,
+            ParticipantIds = new List<Guid>()
+        };
+
+        // Act
+        var createdId = await service.CreateEventAsync(command);
+
+        // Assert
+        Assert.NotEqual(Guid.Empty, createdId);
+        Assert.NotNull(savedEvent);
+
+        var participantIds = savedEvent!.Participants
+            .Select(p => p.UserId)
+            .ToList();
+
+        Assert.Single(participantIds);
+        Assert.Contains(currentUserId, participantIds);
+    }
+
     [Fact]
     public async Task CreateEventAsync_Should_Throw_When_TitleIsNullOrWhitespace()
     {
@@ -101,9 +135,6 @@ public class EventServiceCreateTests
         repoMock.Verify(r => r.AddAsync(It.IsAny<Event>()), Times.Never);
     }
 
-    /// <summary>
-    /// Verifies creation fails when the end time precedes the start time.
-    /// </summary>
     [Fact]
     public async Task CreateEventAsync_Should_Throw_When_EndIsEarlierThanStart()
     {
@@ -125,6 +156,30 @@ public class EventServiceCreateTests
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(act);
+        repoMock.Verify(r => r.AddAsync(It.IsAny<Event>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateEventAsync_Should_Throw_WhenParticipantIdsIsNull()
+    {
+        // Arrange
+        var repoMock = new Mock<IEventRepository>();
+        var service = new EventService(repoMock.Object);
+
+        var command = new CreateEventCommand
+        {
+            Title = "Null participants event",
+            Start = new DateTime(2026, 3, 23, 9, 0, 0),
+            End = new DateTime(2026, 3, 23, 10, 0, 0),
+            CurrentUserId = Guid.NewGuid(),
+            ParticipantIds = null!
+        };
+
+        // Act
+        var act = () => service.CreateEventAsync(command);
+
+        // Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(act);
         repoMock.Verify(r => r.AddAsync(It.IsAny<Event>()), Times.Never);
     }
 }

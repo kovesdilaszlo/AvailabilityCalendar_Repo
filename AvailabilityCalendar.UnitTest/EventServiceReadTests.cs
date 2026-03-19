@@ -3,17 +3,15 @@ using AvailabilityCalendar.Application.Services;
 using AvailabilityCalendar.Domain.Entities;
 using AvailabilityCalendar.Domain.ValueObjects;
 using Moq;
+using Xunit;
 
-namespace AvailabilityCalendar.Tests;
+namespace AvailabilityCalendar.Tests.ApplicationTests;
 
 /// <summary>
 /// Tests reading events through the EventService.
 /// </summary>
 public class EventServiceReadTests
 {
-    /// <summary>
-    /// Verifies only participant events are returned and sorted by start time.
-    /// </summary>
     [Fact]
     public async Task GetEventsByUserAsync_Should_ReturnOnlyEventsWhereUserIsParticipant_OrderedByStart()
     {
@@ -31,7 +29,9 @@ public class EventServiceReadTests
             Title = "Later event",
             CreatedByUserId = creatorId
         };
-        event1.UpdateTime(new DateTime(2026, 3, 21, 12, 0, 0), new DateTime(2026, 3, 21, 13, 0, 0));
+        event1.UpdateTime(
+            new DateTime(2026, 3, 21, 12, 0, 0),
+            new DateTime(2026, 3, 21, 13, 0, 0));
         event1.AddParticipant(userId);
 
         var event2 = new Event
@@ -40,7 +40,9 @@ public class EventServiceReadTests
             Title = "Earlier event",
             CreatedByUserId = creatorId
         };
-        event2.UpdateTime(new DateTime(2026, 3, 21, 9, 0, 0), new DateTime(2026, 3, 21, 10, 0, 0));
+        event2.UpdateTime(
+            new DateTime(2026, 3, 21, 9, 0, 0),
+            new DateTime(2026, 3, 21, 10, 0, 0));
         event2.AddParticipant(userId);
         event2.AddParticipant(otherUserId);
 
@@ -50,7 +52,9 @@ public class EventServiceReadTests
             Title = "Other user's event",
             CreatedByUserId = creatorId
         };
-        event3.UpdateTime(new DateTime(2026, 3, 21, 8, 0, 0), new DateTime(2026, 3, 21, 9, 0, 0));
+        event3.UpdateTime(
+            new DateTime(2026, 3, 21, 8, 0, 0),
+            new DateTime(2026, 3, 21, 9, 0, 0));
         event3.AddParticipant(otherUserId);
 
         repoMock
@@ -71,5 +75,42 @@ public class EventServiceReadTests
 
         Assert.All(result, dto => Assert.Contains(userId, dto.ParticipantIds));
         Assert.DoesNotContain(result, dto => dto.Title == "Other user's event");
+    }
+
+    [Fact]
+    public async Task GetEventsByUserAsync_Should_ReturnEmpty_WhenUserHasNoEvents()
+    {
+        // Arrange
+        var repoMock = new Mock<IEventRepository>();
+        var service = new EventService(repoMock.Object);
+
+        var userId = Guid.NewGuid();
+        var otherUserId = Guid.NewGuid();
+        var creatorId = Guid.NewGuid();
+
+        var otherEvent = new Event
+        {
+            Id = Guid.NewGuid(),
+            Title = "Someone else's event",
+            CreatedByUserId = creatorId
+        };
+        otherEvent.UpdateTime(
+            new DateTime(2026, 3, 21, 8, 0, 0),
+            new DateTime(2026, 3, 21, 9, 0, 0));
+        otherEvent.AddParticipant(otherUserId);
+
+        repoMock
+            .Setup(r => r.GetByUsersAsync(It.IsAny<List<Guid>>(), It.IsAny<TimeInterval>()))
+            .ReturnsAsync(new List<Event> { otherEvent });
+
+        var range = new TimeInterval(
+            new DateTime(2026, 3, 21, 0, 0, 0),
+            new DateTime(2026, 3, 22, 0, 0, 0));
+
+        // Act
+        var result = await service.GetEventsByUserAsync(userId, range);
+
+        // Assert
+        Assert.Empty(result);
     }
 }
