@@ -7,6 +7,9 @@ using AvailabilityCalendar.Domain.ValueObjects;
 
 namespace AvailabilityCalendar.Test;
 
+/// <summary>
+/// Tests edge cases for common free time calculations.
+/// </summary>
 public class GetCommonFreeTimeEdgeCaseTests
 {
     /// <summary>

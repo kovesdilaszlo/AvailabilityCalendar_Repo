@@ -5,6 +5,9 @@ using Moq;
 
 namespace AvailabilityCalendar.Tests.ApplicationTests;
 
+/// <summary>
+/// Tests edge cases for selection normalization.
+/// </summary>
 public class NormalizeSelectionEdgeCaseTests
 {
     /// <summary>

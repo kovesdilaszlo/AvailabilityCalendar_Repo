@@ -2,6 +2,20 @@
   <Folder Name="/Application/">
     <Project Path="AvailabilityCalendar.Application/AvailabilityCalendar.Application.csproj" />
   </Folder>
+  <Folder Name="/docs/">
+    <File Path="docs/algorithms.md" />
+    <File Path="docs/application.md" />
+    <File Path="docs/architecture.md" />
+    <File Path="docs/domain.md" />
+    <File Path="docs/functionality.md" />
+    <File Path="docs/future.md" />
+    <File Path="docs/infrastructure.md" />
+    <File Path="docs/overview.md" />
+    <File Path="docs/README.md" />
+    <File Path="docs/structure.md" />
+    <File Path="docs/testing.md" />
+    <File Path="docs/web.md" />
+  </Folder>
   <Folder Name="/Domain/">
     <Project Path="AvailabilityCalendar.Domain/AvailabilityCalendar.Domain.csproj" />
   </Folder>

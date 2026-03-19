@@ -3,6 +3,9 @@ using AvailabilityCalendar.Domain.ValueObjects;
 
 namespace AvailabilityCalendar.Tests.DomainTests;
 
+/// <summary>
+/// Tests TimeInterval edge-case behaviors.
+/// </summary>
 public class TimeIntervalEdgeCaseTests
 {
     /// <summary>

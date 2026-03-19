@@ -8,6 +8,9 @@ using Xunit;
 
 namespace AvailabilityCalendar.Tests.ApplicationTests;
 
+/// <summary>
+/// Tests authorization rules enforced by EventService for updates and deletes.
+/// </summary>
 public class EventServiceAuthorizationTests
 {
     /// <summary>

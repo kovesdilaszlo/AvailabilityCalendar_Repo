@@ -6,6 +6,9 @@ using Moq;
 
 namespace AvailabilityCalendar.Test;
 
+/// <summary>
+/// Tests interval merging behavior in AvailabilityService.
+/// </summary>
 public class IntervalMergeServiceTests
 {
     /// <summary>

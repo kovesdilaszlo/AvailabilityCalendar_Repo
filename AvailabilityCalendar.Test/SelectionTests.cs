@@ -5,6 +5,9 @@ using Moq;
 
 namespace AvailabilityCalendar.Tests.ApplicationTests;
 
+/// <summary>
+/// Tests selection normalization behaviors.
+/// </summary>
 public class SelectionTests
 {
     /// <summary>

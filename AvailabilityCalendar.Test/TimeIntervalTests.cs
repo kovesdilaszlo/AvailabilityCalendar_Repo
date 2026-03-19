@@ -3,6 +3,9 @@ using AvailabilityCalendar.Domain.ValueObjects;
 
 namespace AvailabilityCalendar.Tests.DomainTests;
 
+/// <summary>
+/// Tests TimeInterval core behaviors.
+/// </summary>
 public class TimeIntervalTests
 {
     /// <summary>

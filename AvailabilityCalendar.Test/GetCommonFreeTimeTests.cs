@@ -7,6 +7,9 @@ using AvailabilityCalendar.Domain.ValueObjects;
 
 namespace AvailabilityCalendar.Test;
 
+/// <summary>
+/// Tests baseline common free time calculations.
+/// </summary>
 public class GetCommonFreeTimeTests
 {
     /// <summary>

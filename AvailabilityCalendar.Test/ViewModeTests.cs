@@ -6,6 +6,9 @@ using Moq;
 
 namespace AvailabilityCalendar.Tests.ApplicationTests;
 
+/// <summary>
+/// Tests view mode selection rules.
+/// </summary>
 public class ViewModeTests
 {
     /// <summary>
