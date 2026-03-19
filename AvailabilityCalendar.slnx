@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/Application/">
+    <Project Path="AvailabilityCalendar.Application/AvailabilityCalendar.Application.csproj" />
+  </Folder>
+  <Folder Name="/Docs/">
+    <File Path="TechnicalDocumentation.md" />
+  </Folder>
+  <Folder Name="/Domain/">
+    <Project Path="AvailabilityCalendar.Domain/AvailabilityCalendar.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="AvailabilityCalendar.Infrastructure/AvailabilityCalendar.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Test/">
+    <Project Path="AvailabilityCalendar.Test/AvailabilityCalendar.Test.csproj" />
+  </Folder>
+  <Folder Name="/Web/">
+    <Project Path="AvailabilityCalendar.Web/AvailabilityCalendar.Web.csproj" />
+  </Folder>
+</Solution>

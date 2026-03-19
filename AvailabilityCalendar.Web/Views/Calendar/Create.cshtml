@@ -1,0 +1,83 @@
+﻿@* View for creating a new calendar event. *@
+@model AvailabilityCalendar.Web.ViewModels.Calendar.CreateEventViewModel
+
+@{
+    ViewData["Title"] = "Új esemény";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8 col-xl-6">
+            <div class="d-flex justify-content-between align-items-center mb-4 gap-2 flex-wrap">
+                <div>
+                    <h1 class="h3 mb-1">Új esemény létrehozása</h1>
+                    <p class="text-muted mb-0">
+                        Adj meg egy címet, kezdési és befejezési időpontot.
+                    </p>
+                </div>
+
+                <a asp-controller="Calendar"
+                       asp-action="Index"
+                       asp-route-date="@Model.Start.ToString("yyyy-MM-dd")"
+                       class="btn btn-outline-secondary">
+                    ← Vissza a naptárhoz
+                </a>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <form asp-controller="Calendar" asp-action="Create" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-semibold"></label>
+                            <input asp-for="Title" class="form-control" placeholder="Pl. Projektmegbeszélés" />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Start" class="form-label fw-semibold"></label>
+                                <input name="Start"
+                                       id="Start"
+                                       type="datetime-local"
+                                       class="form-control"
+                                       value="@Model.Start.ToString("yyyy-MM-ddTHH:mm")" />
+                                <span asp-validation-for="Start" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label asp-for="End" class="form-label fw-semibold"></label>
+                                <input name="End"
+                                       id="End"
+                                       type="datetime-local"
+                                       class="form-control"
+                                       value="@Model.End.ToString("yyyy-MM-ddTHH:mm")" />
+                                <span asp-validation-for="End" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                Esemény létrehozása
+                            </button>
+
+                            <a asp-controller="Calendar"
+                                   asp-action="Index"
+                                   asp-route-date="@Model.Start.ToString("yyyy-MM-dd")"
+                                   class="btn btn-outline-secondary">
+                                Mégse
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-3 text-muted small">
+                A létrehozott esemény automatikusan a saját naptáradba kerül.
+            </div>
+        </div>
+    </div>
+</div>

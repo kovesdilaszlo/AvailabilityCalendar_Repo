@@ -1,0 +1,579 @@
+﻿@* Calendar view showing schedules, free time, and navigation controls. *@
+@model AvailabilityCalendar.Web.ViewModels.Calendar.CalendarPageViewModel
+@using AvailabilityCalendar.Web.ViewModels.Calendar
+@using AvailabilityCalendar.Domain.Enums
+@using AvailabilityCalendar.Domain.ValueObjects
+@using System.Globalization
+
+@functions {
+    private static bool OverlapsDay(TimeInterval interval, DateTime day)
+    {
+        var dayStart = day.Date;
+        var dayEnd = dayStart.AddDays(1);
+
+        return interval.Start < dayEnd && interval.End > dayStart;
+    }
+
+    private static string FormatIntervalForMonthCell(TimeInterval interval, DateTime day)
+    {
+        var dayStart = day.Date;
+        var dayEnd = dayStart.AddDays(1);
+
+        var clippedStart = interval.Start < dayStart ? dayStart : interval.Start;
+        var clippedEnd = interval.End > dayEnd ? dayEnd : interval.End;
+
+        var startText = clippedStart.ToString("HH:mm");
+        var endText = clippedEnd == dayEnd ? "23:59" : clippedEnd.ToString("HH:mm");
+
+        return $"{startText}-{endText}";
+    }
+
+    private static string ToDateTimeLocal(DateTime value)
+    {
+        return value.ToString("yyyy-MM-ddTHH:mm");
+    }
+}
+
+@{
+    ViewData["Title"] = "Calendar";
+    var isPersonalMode = Model.Mode == ViewMode.Personal;
+    var culture = new CultureInfo("hu-HU");
+    var hourRowHeightPx = 64;
+    var gridHeightPx = 24 * hourRowHeightPx;
+}
+
+<div class="container-fluid py-4 calendar-page">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="page-title">Availability Calendar</h1>
+            <p class="page-subtitle">Aktuális mód: <strong>@Model.ModeLabel</strong></p>
+        </div>
+
+        <div>
+            <a asp-controller="Calendar"
+                   asp-action="Create"
+                   asp-route-date="@Model.CurrentDate.ToString("yyyy-MM-dd")"
+                   class="btn btn-primary">
+                Új esemény
+            </a>
+        </div>
+    </div>
+
+    <form asp-controller="Calendar" asp-action="Index" method="get" class="calendar-card p-3 mb-4 js-calendar-auto-submit-form">
+        <input type="hidden" name="date" value="@Model.CurrentDate.ToString("yyyy-MM-dd")" />
+
+        <div class="calendar-toolbar-grid">
+            <div>
+                <label class="form-label fw-semibold">Nézet</label>
+                <select name="view" class="form-select js-auto-submit">
+                    <option value="@((int)CalendarViewType.Day)" selected="@(Model.ViewType == CalendarViewType.Day)">Napi nézet</option>
+                    <option value="@((int)CalendarViewType.Week)" selected="@(Model.ViewType == CalendarViewType.Week)">Heti nézet</option>
+                    <option value="@((int)CalendarViewType.Month)" selected="@(Model.ViewType == CalendarViewType.Month)">Havi nézet</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label fw-semibold">Minimum szabad idő (perc)</label>
+                <input type="number"
+                       name="minimumDurationMinutes"
+                       class="form-control js-auto-submit"
+                       min="1"
+                       value="@Model.MinimumDurationMinutes" />
+            </div>
+
+            <div>
+                <label class="form-label fw-semibold">Javasolt eseményhossz (perc)</label>
+                <input type="number"
+                       name="slotLengthMinutes"
+                       class="form-control js-auto-submit"
+                       min="@Model.MinimumDurationMinutes"
+                       value="@(Model.SlotLengthMinutes?.ToString() ?? string.Empty)"
+                       placeholder="Ne darabolja fel" />
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <label class="form-label fw-semibold">Felhasználók kiválasztása</label>
+            <div class="user-selection-chips">
+                @foreach (var user in Model.AvailableUsers)
+                {
+                    var checkboxId = $"selected-user-{user.Id}";
+
+                    <div class="user-chip-item">
+                        <input class="user-chip-input js-auto-submit"
+                               type="checkbox"
+                               name="selectedUsers"
+                               value="@user.Id"
+                               id="@checkboxId"
+                               checked="@user.IsSelected"
+                               disabled="@user.IsCurrentUser" />
+
+                        @if (user.IsCurrentUser)
+                        {
+                            <input type="hidden" name="selectedUsers" value="@user.Id" />
+                        }
+
+                        <label class="user-chip-label @(user.IsCurrentUser ? "current-user" : "")" for="@checkboxId">
+                            <span class="user-chip-text">@user.Name</span>
+                            @if (user.IsCurrentUser)
+                            {
+                                <span class="user-chip-badge">Te</span>
+                            }
+                        </label>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <a asp-controller="Calendar"
+                   asp-action="Index"
+                   asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")"
+                   asp-route-view="@((int)Model.ViewType)"
+                   asp-route-minimumDurationMinutes="@Model.MinimumDurationMinutes"
+                   asp-route-slotLengthMinutes="@Model.SlotLengthMinutes"
+                   class="btn btn-outline-secondary">
+                Ugrás a mai napra
+            </a>
+        </div>
+    </form>
+
+    <div class="calendar-card p-3 mb-4">
+        <div class="calendar-nav">
+            <form asp-controller="Calendar" asp-action="Index" method="get" class="m-0">
+                <input type="hidden" name="date" value="@Model.PreviousDate.ToString("yyyy-MM-dd")" />
+                <input type="hidden" name="view" value="@((int)Model.ViewType)" />
+                <input type="hidden" name="minimumDurationMinutes" value="@Model.MinimumDurationMinutes" />
+                @if (Model.SlotLengthMinutes.HasValue)
+                {
+                    <input type="hidden" name="slotLengthMinutes" value="@Model.SlotLengthMinutes.Value" />
+                }
+
+                @foreach (var selectedUserId in Model.SelectedUserIds)
+                {
+                    <input type="hidden" name="selectedUsers" value="@selectedUserId" />
+                }
+
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    ← Előző
+                </button>
+            </form>
+
+            <div class="calendar-period">
+                <div class="calendar-period-label">Aktuális időszak</div>
+                <div class="calendar-period-value">@Model.CurrentPeriodLabel</div>
+            </div>
+
+            <form asp-controller="Calendar" asp-action="Index" method="get" class="m-0">
+                <input type="hidden" name="date" value="@Model.NextDate.ToString("yyyy-MM-dd")" />
+                <input type="hidden" name="view" value="@((int)Model.ViewType)" />
+                <input type="hidden" name="minimumDurationMinutes" value="@Model.MinimumDurationMinutes" />
+                @if (Model.SlotLengthMinutes.HasValue)
+                {
+                    <input type="hidden" name="slotLengthMinutes" value="@Model.SlotLengthMinutes.Value" />
+                }
+
+                @foreach (var selectedUserId in Model.SelectedUserIds)
+                {
+                    <input type="hidden" name="selectedUsers" value="@selectedUserId" />
+                }
+
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    Következő →
+                </button>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.ViewType == CalendarViewType.Day || Model.ViewType == CalendarViewType.Week)
+    {
+        var headerClass = Model.ViewType == CalendarViewType.Day
+            ? "calendar-time-header day-view"
+            : "calendar-time-header week-view";
+
+        var bodyClass = Model.ViewType == CalendarViewType.Day
+            ? "calendar-time-body day-view"
+            : "calendar-time-body week-view";
+
+        var columnsClass = Model.ViewType == CalendarViewType.Day
+            ? "calendar-time-columns day-view"
+            : "calendar-time-columns week-view";
+
+        <div class="calendar-card">
+            <div class="calendar-grid-wrapper">
+                <div class="calendar-time-shell">
+                    <div class="@headerClass">
+                        <div class="calendar-time-header-axis"></div>
+
+                        @foreach (var cell in Model.Cells)
+                        {
+                            var headerCellClass = "calendar-time-header-cell";
+
+                            if (cell.IsToday)
+                            {
+                                headerCellClass += " today";
+                            }
+
+                            if (cell.IsSelectedDate)
+                            {
+                                headerCellClass += " selected";
+                            }
+
+                            <div class="@headerCellClass">
+                                <div class="calendar-time-header-title">@culture.TextInfo.ToTitleCase(cell.Date.ToString("dddd", culture))</div>
+                                <div class="calendar-time-header-date">@cell.Date.ToString("yyyy.MM.dd.")</div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="@bodyClass">
+                        <div class="calendar-time-axis">
+                            @for (int hour = 0; hour < 24; hour++)
+                            {
+                                var top = hour * hourRowHeightPx;
+                                <div class="calendar-time-axis-label" style="top:@($"{top}px")">@($"{hour:00}:00")</div>
+                            }
+                            <div class="calendar-time-axis-label last">24:00</div>
+                        </div>
+
+                        <div class="@columnsClass">
+                            @for (int i = 0; i < Model.Cells.Count; i++)
+                            {
+                                var cell = Model.Cells[i];
+                                var columnBlocks = Model.Blocks
+                                    .Where(b => b.ColumnIndex == i)
+                                    .OrderBy(b => b.Start)
+                                    .ToList();
+
+                                var columnClass = "calendar-time-column";
+                                if (cell.IsToday)
+                                {
+                                    columnClass += " today";
+                                }
+
+                                <div class="@columnClass">
+                                    @for (int hour = 0; hour < 24; hour++)
+                                    {
+                                        var top = hour * hourRowHeightPx;
+                                        <div class="calendar-hour-band" style="top:@($"{top}px")"></div>
+                                        <div class="calendar-hour-line" style="top:@($"{top}px")"></div>
+                                    }
+
+                                    @foreach (var block in columnBlocks)
+                                    {
+                                        var topPx = block.TopPercent / 100.0 * gridHeightPx;
+                                        var heightPx = Math.Max(block.HeightPercent / 100.0 * gridHeightPx, 28);
+
+                                        if (!block.IsFreeTime && block.EventId.HasValue)
+                                        {
+                                            <button type="button"
+                                                    class="calendar-block event calendar-block-button"
+                                                    style="top:@($"{topPx}px"); height:@($"{heightPx}px");"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#eventActionModal"
+                                                    data-event-id="@block.EventId"
+                                                    data-event-title="@block.Title"
+                                                    data-event-start="@ToDateTimeLocal(block.Start)"
+                                                    data-event-end="@ToDateTimeLocal(block.End)">
+                                                <div class="calendar-block-time">@block.TimeLabel</div>
+                                                <div class="calendar-block-title">@block.Title</div>
+                                            </button>
+                                        }
+                                        else if (block.IsFreeTime)
+                                        {
+                                            <button type="button"
+                                                    class="calendar-block free calendar-block-button"
+                                                    style="top:@($"{topPx}px"); height:@($"{heightPx}px");"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#freeSlotModal"
+                                                    data-slot-start="@ToDateTimeLocal(block.Start)"
+                                                    data-slot-end="@ToDateTimeLocal(block.End)">
+                                                <div class="calendar-block-time">@block.TimeLabel</div>
+                                                <div class="calendar-block-title">@block.Title</div>
+                                            </button>
+                                        }
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (Model.ViewType == CalendarViewType.Month)
+    {
+        <div class="calendar-card">
+            <div class="calendar-grid-wrapper">
+                <div class="calendar-month-grid">
+                    @{
+                        var dayNames = new[] { "Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat", "Vasárnap" };
+                    }
+
+                    @foreach (var dayName in dayNames)
+                    {
+                        <div class="calendar-month-header">@dayName</div>
+                    }
+
+                    @foreach (var cell in Model.Cells)
+                    {
+                        var monthCellClass = "calendar-month-cell";
+
+                        if (!cell.IsCurrentPeriod)
+                        {
+                            monthCellClass += " other-month";
+                        }
+
+                        if (cell.IsToday)
+                        {
+                            monthCellClass += " today";
+                        }
+
+                        if (cell.IsSelectedDate)
+                        {
+                            monthCellClass += " selected";
+                        }
+
+                        var dayEvents = Model.Events
+                            .Where(e => e.Start.Date == cell.Date.Date)
+                            .OrderBy(e => e.Start)
+                            .ToList();
+
+                        var dayFreeTimes = Model.FreeIntervals
+                            .Where(f => OverlapsDay(f, cell.Date))
+                            .OrderBy(f => f.Start)
+                            .ToList();
+
+                        <div class="@monthCellClass">
+                            <div class="calendar-month-date">@cell.Date.Day</div>
+
+                            <div class="calendar-month-items">
+                                @if (isPersonalMode)
+                                {
+                                    @foreach (var ev in dayEvents)
+                                    {
+                                        <button type="button"
+                                                class="calendar-month-item event calendar-month-item-button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#eventActionModal"
+                                                data-event-id="@ev.Id"
+                                                data-event-title="@ev.Title"
+                                                data-event-start="@ToDateTimeLocal(ev.Start)"
+                                                data-event-end="@ToDateTimeLocal(ev.End)">
+                                            <span class="calendar-month-item-time">@($"{ev.Start:HH:mm}-{ev.End:HH:mm}")</span>
+                                            <span>@ev.Title</span>
+                                        </button>
+                                    }
+                                }
+                                else
+                                {
+                                    @foreach (var free in dayFreeTimes)
+                                    {
+                                        var dayStart = cell.Date.Date;
+                                        var dayEnd = dayStart.AddDays(1);
+                                        var clippedStart = free.Start < dayStart ? dayStart : free.Start;
+                                        var clippedEnd = free.End > dayEnd ? dayEnd : free.End;
+
+                                        <button type="button"
+                                                class="calendar-month-item free calendar-month-item-button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#freeSlotModal"
+                                                data-slot-start="@ToDateTimeLocal(clippedStart)"
+                                                data-slot-end="@ToDateTimeLocal(clippedEnd)">
+                                            <span class="calendar-month-item-time">@FormatIntervalForMonthCell(free, cell.Date)</span>
+                                            <span>Szabad</span>
+                                        </button>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (!isPersonalMode && !Model.FreeIntervals.Any())
+    {
+        <div class="alert alert-info calendar-empty">
+            Nincs a kiválasztott feltételeknek megfelelő közös szabad idősáv.
+        </div>
+    }
+
+    @if (isPersonalMode && !Model.Events.Any())
+    {
+        <div class="alert alert-info calendar-empty">
+            Nincs esemény a kiválasztott időszakban.
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="eventActionModal" tabindex="-1" aria-labelledby="eventActionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Esemény kezelése</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bezárás"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-4">
+                    <div class="small text-muted">Kiválasztott esemény</div>
+                    <div id="eventModalSummary" class="fw-semibold"></div>
+                </div>
+
+                <ul class="nav nav-tabs mb-3" id="eventActionTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active"
+                                id="edit-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#edit-tab-pane"
+                                type="button"
+                                role="tab">
+                            Módosítás
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link"
+                                id="delete-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#delete-tab-pane"
+                                type="button"
+                                role="tab">
+                            Törlés
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="edit-tab-pane" role="tabpanel">
+                        <form asp-controller="Calendar" asp-action="Update" method="post" id="eventEditForm">
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="Id" id="editEventId" />
+                            <input type="hidden" name="redirectDate" value="@Model.CurrentDate.ToString("yyyy-MM-dd")" />
+                            <input type="hidden" name="redirectView" value="@((int)Model.ViewType)" />
+                            <input type="hidden" name="minimumDurationMinutes" value="@Model.MinimumDurationMinutes" />
+                            @if (Model.SlotLengthMinutes.HasValue)
+                            {
+                                <input type="hidden" name="slotLengthMinutes" value="@Model.SlotLengthMinutes.Value" />
+                            }
+                            @foreach (var selectedUserId in Model.SelectedUserIds)
+                            {
+                                <input type="hidden" name="selectedUsers" value="@selectedUserId" />
+                            }
+
+                            <div class="mb-3">
+                                <label for="editEventTitle" class="form-label fw-semibold">Cím</label>
+                                <input type="text" class="form-control" name="Title" id="editEventTitle" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="editEventStart" class="form-label fw-semibold">Kezdés</label>
+                                <input type="datetime-local" class="form-control" name="Start" id="editEventStart" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="editEventEnd" class="form-label fw-semibold">Befejezés</label>
+                                <input type="datetime-local" class="form-control" name="End" id="editEventEnd" required />
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Mégse</button>
+                                <button type="submit" class="btn btn-primary">Mentés</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="delete-tab-pane" role="tabpanel">
+                        <form asp-controller="Calendar" asp-action="Delete" method="post" id="eventDeleteForm">
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="id" id="deleteEventId" />
+                            <input type="hidden" name="redirectDate" value="@Model.CurrentDate.ToString("yyyy-MM-dd")" />
+                            <input type="hidden" name="redirectView" value="@((int)Model.ViewType)" />
+                            <input type="hidden" name="minimumDurationMinutes" value="@Model.MinimumDurationMinutes" />
+                            @if (Model.SlotLengthMinutes.HasValue)
+                            {
+                                <input type="hidden" name="slotLengthMinutes" value="@Model.SlotLengthMinutes.Value" />
+                            }
+                            @foreach (var selectedUserId in Model.SelectedUserIds)
+                            {
+                                <input type="hidden" name="selectedUsers" value="@selectedUserId" />
+                            }
+
+                            <div class="alert alert-warning">
+                                Biztosan törölni szeretnéd ezt az eseményt?
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Mégse</button>
+                                <button type="submit" class="btn btn-danger">Törlés megerősítése</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="freeSlotModal" tabindex="-1" aria-labelledby="freeSlotModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Szabad idősáv lefoglalása</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bezárás"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-4">
+                    <div class="small text-muted">Kiválasztott közös szabad idősáv</div>
+                    <div id="freeSlotModalSummary" class="fw-semibold"></div>
+                </div>
+
+                <form asp-controller="Calendar" asp-action="CreateFromFreeSlot" method="post" id="freeSlotCreateForm">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="start" id="freeSlotStart" />
+                    <input type="hidden" name="end" id="freeSlotEnd" />
+                    <input type="hidden" name="redirectDate" value="@Model.CurrentDate.ToString("yyyy-MM-dd")" />
+                    <input type="hidden" name="redirectView" value="@((int)Model.ViewType)" />
+                    <input type="hidden" name="minimumDurationMinutes" value="@Model.MinimumDurationMinutes" />
+                    @if (Model.SlotLengthMinutes.HasValue)
+                    {
+                        <input type="hidden" name="slotLengthMinutes" value="@Model.SlotLengthMinutes.Value" />
+                    }
+
+                    @foreach (var selectedUserId in Model.SelectedUserIds)
+                    {
+                        <input type="hidden" name="participantIds" value="@selectedUserId" />
+                    }
+
+                    <div class="mb-3">
+                        <label for="freeSlotTitle" class="form-label fw-semibold">Esemény címe</label>
+                        <input type="text"
+                               class="form-control"
+                               id="freeSlotTitle"
+                               name="title"
+                               value="Közös esemény"
+                               required />
+                    </div>
+
+                    <div class="alert alert-info">
+                        Ha megerősíted, az esemény az összes jelenleg kiválasztott felhasználó naptárába bekerül.
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Mégse</button>
+                        <button type="submit" class="btn btn-success">Létrehozás megerősítése</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/calendar.js" asp-append-version="true"></script>
+}

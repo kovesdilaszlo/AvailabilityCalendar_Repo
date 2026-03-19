@@ -1,0 +1,22 @@
+﻿@* Home fallback view when automatic redirect does not occur. *@
+@{
+    ViewData["Title"] = "Kezdőlap";
+}
+
+<div class="soft-card p-5 text-center">
+    <h1 class="display-6 mb-3">Availability Calendar</h1>
+
+    <p class="text-muted mb-4">
+        Ha ezt látod, akkor valamiért nem történt meg az automatikus átirányítás.
+    </p>
+
+    <div class="d-flex justify-content-center gap-2">
+        <a asp-controller="Calendar" asp-action="Index" class="btn btn-primary">
+            Naptár megnyitása
+        </a>
+
+        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary">
+            Bejelentkezés
+        </a>
+    </div>
+</div>

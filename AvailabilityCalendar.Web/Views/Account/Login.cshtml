@@ -1,0 +1,47 @@
+﻿@* Login view for authenticating users. *@
+@{
+    ViewData["Title"] = "Bejelentkezés";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+        <div class="soft-card p-4">
+            <h1 class="h3 mb-3">Bejelentkezés</h1>
+            <p class="text-muted mb-4">
+                Jelentkezz be a naptár használatához.
+            </p>
+
+            <form asp-controller="Account" asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email cím</label>
+                    <input id="email"
+                           name="email"
+                           type="email"
+                           class="form-control"
+                           autocomplete="username"
+                           required />
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label">Jelszó</label>
+                    <input id="password"
+                           name="password"
+                           type="password"
+                           class="form-control"
+                           autocomplete="current-password"
+                           required />
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        Bejelentkezés
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
