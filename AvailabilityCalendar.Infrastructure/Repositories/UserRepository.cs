@@ -12,6 +12,9 @@ public class UserRepository : IUserRepository
 {
     private readonly AvailabilityCalendarDbContext _dbContext;
 
+    /// <summary>
+    /// Initializes the repository with the database context.
+    /// </summary>
     public UserRepository(AvailabilityCalendarDbContext dbContext)
     {
         _dbContext = dbContext;

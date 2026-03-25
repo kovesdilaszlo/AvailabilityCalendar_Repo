@@ -13,6 +13,9 @@ public class EventRepository : IEventRepository
 {
     private readonly AvailabilityCalendarDbContext _dbContext;
 
+    /// <summary>
+    /// Initializes the repository with the database context.
+    /// </summary>
     public EventRepository(AvailabilityCalendarDbContext dbContext)
     {
         _dbContext = dbContext;

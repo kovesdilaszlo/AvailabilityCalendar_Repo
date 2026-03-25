@@ -10,6 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AvailabilityCalendar.Web.Controllers;
 
+/// <summary>
+/// Handles calendar views and event actions for the web UI.
+/// </summary>
 [Authorize]
 public class CalendarController : Controller
 {

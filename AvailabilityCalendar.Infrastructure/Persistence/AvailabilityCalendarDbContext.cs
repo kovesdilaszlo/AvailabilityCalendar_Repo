@@ -12,6 +12,9 @@ namespace AvailabilityCalendar.Infrastructure.Persistence;
 public class AvailabilityCalendarDbContext
     : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
+    /// <summary>
+    /// Initializes the database context with the configured options.
+    /// </summary>
     public AvailabilityCalendarDbContext(
         DbContextOptions<AvailabilityCalendarDbContext> options)
         : base(options)
@@ -34,6 +37,9 @@ public class AvailabilityCalendarDbContext
         ConfigureEventParticipant(modelBuilder);
     }
 
+    /// <summary>
+    /// Configures the User entity mapping.
+    /// </summary>
     private static void ConfigureUser(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>(entity =>
@@ -58,6 +64,9 @@ public class AvailabilityCalendarDbContext
         });
     }
 
+    /// <summary>
+    /// Configures the Event entity mapping.
+    /// </summary>
     private static void ConfigureEvent(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Event>(entity =>
@@ -95,6 +104,9 @@ public class AvailabilityCalendarDbContext
         });
     }
 
+    /// <summary>
+    /// Configures the EventParticipant entity mapping.
+    /// </summary>
     private static void ConfigureEventParticipant(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<EventParticipant>(entity =>
