@@ -55,7 +55,6 @@ public class EventServiceCreateTests
         Assert.Equal(createdId, savedEvent!.Id);
 
         Assert.Equal("Team Meeting", savedEvent.Title);
-        Assert.Equal(currentUserId, savedEvent.CreatedByUserId);
         Assert.Equal(command.Start, savedEvent.Start);
         Assert.Equal(command.End, savedEvent.End);
 

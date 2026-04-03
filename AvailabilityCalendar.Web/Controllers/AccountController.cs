@@ -14,7 +14,7 @@ public class AccountController : Controller
     private readonly SignInManager<ApplicationUser> _signInManager;
 
     /// <summary>
-    /// Initializes the account controller.
+    /// Creates a new account controller instance.
     /// </summary>
     public AccountController(SignInManager<ApplicationUser> signInManager)
     {
@@ -22,7 +22,7 @@ public class AccountController : Controller
     }
 
     /// <summary>
-    /// Displays the login form.
+    /// Displays the login page.
     /// </summary>
     [HttpGet]
     public IActionResult Login()
@@ -31,7 +31,7 @@ public class AccountController : Controller
     }
 
     /// <summary>
-    /// Processes a login attempt.
+    /// Processes a login attempt using email and password.
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -59,7 +59,7 @@ public class AccountController : Controller
     }
 
     /// <summary>
-    /// Signs the current user out.
+    /// Signs out the currently authenticated user.
     /// </summary>
     [Authorize]
     [HttpPost]

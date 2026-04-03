@@ -3,7 +3,7 @@
 namespace AvailabilityCalendar.Web.ViewModels.Calendar;
 
 /// <summary>
-/// View model for creating a new calendar event.
+/// View model used when creating a new event from the UI.
 /// </summary>
 public class CreateEventViewModel
 {

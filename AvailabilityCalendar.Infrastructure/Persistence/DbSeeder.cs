@@ -5,10 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AvailabilityCalendar.Infrastructure.Persistence.Seed;
 
+/// <summary>
+/// Seeds identity users, domain users, and sample events when the database is empty
+/// or when required records are missing.
+/// </summary>
 public static class DbSeeder
 {
     /// <summary>
-    /// Seeds identity users, domain users, and events when the database is empty.
+    /// Applies migrations and inserts initial sample data if needed.
+    /// Ensures that every identity user also has a matching domain user.
     /// </summary>
     public static async Task SeedAsync(
         AvailabilityCalendarDbContext context,
@@ -16,20 +21,15 @@ public static class DbSeeder
     {
         await context.Database.MigrateAsync();
 
-        var hasDomainUsers = await context.DomainUsers.AnyAsync();
-        var hasIdentityUsers = await userManager.Users.AnyAsync();
-        var hasEvents = await context.Events.AnyAsync();
-
-        if (hasDomainUsers && hasIdentityUsers && hasEvents)
-        {
-            return;
-        }
-
         var random = new Random();
 
-        var users = new List<ApplicationUser>();
+        // Load all existing identity users first.
+        var identityUsers = await userManager.Users
+            .OrderBy(u => u.Email)
+            .ToListAsync();
 
-        if (!hasDomainUsers && !hasIdentityUsers)
+        // If there are no identity users yet, create sample users in both Identity and Domain.
+        if (!identityUsers.Any())
         {
             for (int i = 1; i <= 10; i++)
             {
@@ -52,31 +52,50 @@ public static class DbSeeder
                     throw new Exception($"User seed hiba: {errors}");
                 }
 
-                users.Add(identityUser);
-
-                var domainUser = new User
+                context.DomainUsers.Add(new User
                 {
                     Id = id,
                     Name = $"User {i}"
-                };
-
-                context.DomainUsers.Add(domainUser);
+                });
             }
 
             await context.SaveChangesAsync();
-        }
-        else
-        {
-            users = await userManager.Users
+
+            identityUsers = await userManager.Users
                 .OrderBy(u => u.Email)
                 .ToListAsync();
         }
 
+        // Ensure that every identity user has a matching domain user.
+        var existingDomainUserIds = await context.DomainUsers
+            .Select(u => u.Id)
+            .ToListAsync();
+
+        var missingDomainUsers = identityUsers
+            .Where(identityUser => !existingDomainUserIds.Contains(identityUser.Id))
+            .Select((identityUser, index) => new User
+            {
+                Id = identityUser.Id,
+                Name = !string.IsNullOrWhiteSpace(identityUser.Email)
+                    ? identityUser.Email
+                    : $"User {index + 1}"
+            })
+            .ToList();
+
+        if (missingDomainUsers.Any())
+        {
+            context.DomainUsers.AddRange(missingDomainUsers);
+            await context.SaveChangesAsync();
+        }
+
+        var hasEvents = await context.Events.AnyAsync();
+
+        // Seed sample events only if no events exist yet.
         if (!hasEvents)
         {
             var events = new List<Event>();
 
-            foreach (var user in users)
+            foreach (var user in identityUsers)
             {
                 for (int j = 0; j < 30; j++)
                 {
@@ -93,7 +112,6 @@ public static class DbSeeder
                         Title = $"Event {j + 1}",
                         Start = start,
                         End = end,
-                        CreatedByUserId = user.Id,
                         Participants = new List<EventParticipant>
                         {
                             new EventParticipant

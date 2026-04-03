@@ -7,13 +7,14 @@ using Microsoft.EntityFrameworkCore;
 namespace AvailabilityCalendar.Infrastructure.Persistence;
 
 /// <summary>
-/// Entity Framework Core context for availability calendar data and identity.
+/// Entity Framework Core database context for the application domain
+/// and the ASP.NET Core Identity tables.
 /// </summary>
 public class AvailabilityCalendarDbContext
     : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
     /// <summary>
-    /// Initializes the database context with the configured options.
+    /// Creates a new database context instance with the configured options.
     /// </summary>
     public AvailabilityCalendarDbContext(
         DbContextOptions<AvailabilityCalendarDbContext> options)
@@ -21,12 +22,23 @@ public class AvailabilityCalendarDbContext
     {
     }
 
+    /// <summary>
+    /// Domain users used by the calendar system.
+    /// </summary>
     public DbSet<User> DomainUsers => Set<User>();
+
+    /// <summary>
+    /// Calendar events stored by the application.
+    /// </summary>
     public DbSet<Event> Events => Set<Event>();
+
+    /// <summary>
+    /// Join table entity between users and events.
+    /// </summary>
     public DbSet<EventParticipant> EventParticipants => Set<EventParticipant>();
 
     /// <summary>
-    /// Configures entity mappings for domain and identity models.
+    /// Configures all entity mappings for both the domain and identity model.
     /// </summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,7 +50,7 @@ public class AvailabilityCalendarDbContext
     }
 
     /// <summary>
-    /// Configures the User entity mapping.
+    /// Configures the <see cref="User"/> entity.
     /// </summary>
     private static void ConfigureUser(ModelBuilder modelBuilder)
     {
@@ -52,11 +64,7 @@ public class AvailabilityCalendarDbContext
                 .IsRequired()
                 .HasMaxLength(100);
 
-            entity.HasMany(x => x.CreatedEvents)
-                .WithOne(x => x.CreatedByUser)
-                .HasForeignKey(x => x.CreatedByUserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
+            // A user participates in many events through the join entity.
             entity.HasMany(x => x.EventParticipants)
                 .WithOne(x => x.User)
                 .HasForeignKey(x => x.UserId)
@@ -65,7 +73,7 @@ public class AvailabilityCalendarDbContext
     }
 
     /// <summary>
-    /// Configures the Event entity mapping.
+    /// Configures the <see cref="Event"/> entity.
     /// </summary>
     private static void ConfigureEvent(ModelBuilder modelBuilder)
     {
@@ -85,27 +93,20 @@ public class AvailabilityCalendarDbContext
             entity.Property(x => x.End)
                 .IsRequired();
 
-            entity.Property(x => x.CreatedByUserId)
-                .IsRequired();
-
-            entity.HasOne(x => x.CreatedByUser)
-                .WithMany(x => x.CreatedEvents)
-                .HasForeignKey(x => x.CreatedByUserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
+            // Events are linked to users only through EventParticipant.
             entity.HasMany(x => x.Participants)
                 .WithOne(x => x.Event)
                 .HasForeignKey(x => x.EventId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Indexes supporting common time-based event queries.
             entity.HasIndex(x => x.Start);
             entity.HasIndex(x => x.End);
-            entity.HasIndex(x => x.CreatedByUserId);
         });
     }
 
     /// <summary>
-    /// Configures the EventParticipant entity mapping.
+    /// Configures the <see cref="EventParticipant"/> join entity.
     /// </summary>
     private static void ConfigureEventParticipant(ModelBuilder modelBuilder)
     {
@@ -113,6 +114,8 @@ public class AvailabilityCalendarDbContext
         {
             entity.ToTable("EventParticipants");
 
+            // Composite primary key ensures the same user
+            // cannot be added twice to the same event.
             entity.HasKey(x => new { x.EventId, x.UserId });
 
             entity.HasOne(x => x.Event)

@@ -1,4 +1,3 @@
-// Configures services and the HTTP request pipeline for the web application.
 using AvailabilityCalendar.Application.Interfaces;
 using AvailabilityCalendar.Application.Services;
 using AvailabilityCalendar.Infrastructure.Identity;
@@ -8,12 +7,21 @@ using AvailabilityCalendar.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+/// <summary>
+/// Configures application services and the HTTP request pipeline.
+/// </summary>
 var builder = WebApplication.CreateBuilder(args);
 
+//
+// Database
+//
 builder.Services.AddDbContext<AvailabilityCalendarDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//
+// Identity / Authentication
+//
 builder.Services
     .AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
     {
@@ -33,16 +41,25 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Account/Login";
 });
 
+//
+// Application services
+//
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
 
+//
+// MVC / Razor
+//
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
+//
+// Middleware pipeline
+//
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -57,8 +74,15 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+//
+// Routing
+//
 app.MapDefaultControllerRoute();
 app.MapRazorPages();
+
+//
+// Optional seed data
+//
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AvailabilityCalendarDbContext>();
@@ -66,4 +90,5 @@ using (var scope = app.Services.CreateScope())
 
     await DbSeeder.SeedAsync(context, userManager);
 }
+
 app.Run();

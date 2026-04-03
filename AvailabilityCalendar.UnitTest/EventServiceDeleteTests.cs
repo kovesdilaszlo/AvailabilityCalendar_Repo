@@ -47,9 +47,9 @@ public class EventServiceDeleteTests
             Id = eventId,
             Title = "Meeting",
             Start = DateTime.Now,
-            End = DateTime.Now.AddHours(1),
-            CreatedByUserId = creatorId
+            End = DateTime.Now.AddHours(1)
         };
+        ev.AddParticipant(creatorId);
 
         var repoMock = new Mock<IEventRepository>();
         repoMock.Setup(r => r.GetByIdAsync(eventId))
@@ -77,9 +77,9 @@ public class EventServiceDeleteTests
             Id = eventId,
             Title = "Meeting",
             Start = DateTime.Now,
-            End = DateTime.Now.AddHours(1),
-            CreatedByUserId = creatorId
+            End = DateTime.Now.AddHours(1)
         };
+        ev.AddParticipant(creatorId);
 
         var repoMock = new Mock<IEventRepository>();
         repoMock.Setup(r => r.GetByIdAsync(eventId))

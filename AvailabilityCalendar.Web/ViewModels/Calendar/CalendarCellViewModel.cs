@@ -11,17 +11,17 @@ public class CalendarCellViewModel
     public DateTime Date { get; set; }
 
     /// <summary>
-    /// Indicates whether the cell belongs to the current period.
+    /// Indicates whether the cell belongs to the currently displayed period.
     /// </summary>
     public bool IsCurrentPeriod { get; set; }
 
     /// <summary>
-    /// Indicates whether the cell represents today.
+    /// Indicates whether the cell represents today's date.
     /// </summary>
     public bool IsToday { get; set; }
 
     /// <summary>
-    /// Indicates whether the cell is currently selected.
+    /// Indicates whether the cell is the actively selected date.
     /// </summary>
     public bool IsSelectedDate { get; set; }
 }

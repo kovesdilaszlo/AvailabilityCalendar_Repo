@@ -9,7 +9,7 @@ namespace AvailabilityCalendar.Web.Controllers;
 public class HomeController : Controller
 {
     /// <summary>
-    /// Redirects authenticated users to the calendar.
+    /// Redirects authenticated users to the calendar page.
     /// </summary>
     [Authorize]
     public IActionResult Index()

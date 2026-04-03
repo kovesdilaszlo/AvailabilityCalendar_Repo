@@ -21,8 +21,7 @@ public class AvailabilityServiceIntegrationTests
         var busyEvent = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "Busy",
-            CreatedByUserId = user
+            Title = "Busy"
         };
         busyEvent.UpdateTime(
             new DateTime(2026, 3, 26, 10, 0, 0),
@@ -66,8 +65,7 @@ public class AvailabilityServiceIntegrationTests
         var event1 = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "User1 busy",
-            CreatedByUserId = user1
+            Title = "User1 busy"
         };
         event1.UpdateTime(
             new DateTime(2026, 3, 26, 9, 0, 0),
@@ -77,8 +75,7 @@ public class AvailabilityServiceIntegrationTests
         var event2 = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "User2 busy",
-            CreatedByUserId = user2
+            Title = "User2 busy"
         };
         event2.UpdateTime(
             new DateTime(2026, 3, 26, 10, 0, 0),
@@ -88,8 +85,7 @@ public class AvailabilityServiceIntegrationTests
         var event3 = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "User2 later busy",
-            CreatedByUserId = user2
+            Title = "User2 later busy"
         };
         event3.UpdateTime(
             new DateTime(2026, 3, 26, 13, 0, 0),
@@ -135,8 +131,7 @@ public class AvailabilityServiceIntegrationTests
         var eventBeforeRange = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "Starts before range",
-            CreatedByUserId = user
+            Title = "Starts before range"
         };
         eventBeforeRange.UpdateTime(
             new DateTime(2026, 3, 26, 7, 0, 0),
@@ -146,8 +141,7 @@ public class AvailabilityServiceIntegrationTests
         var eventAfterRange = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "Ends after range",
-            CreatedByUserId = user
+            Title = "Ends after range"
         };
         eventAfterRange.UpdateTime(
             new DateTime(2026, 3, 26, 15, 0, 0),

@@ -5,7 +5,7 @@ using AvailabilityCalendar.Domain.ValueObjects;
 namespace AvailabilityCalendar.Web.ViewModels.Calendar;
 
 /// <summary>
-/// View model for rendering the calendar page.
+/// View model used to render the main calendar page.
 /// </summary>
 public class CalendarPageViewModel
 {
@@ -15,94 +15,94 @@ public class CalendarPageViewModel
     public DateTime CurrentDate { get; set; }
 
     /// <summary>
-    /// Current calendar view type.
+    /// Active calendar view type.
     /// </summary>
     public CalendarViewType ViewType { get; set; }
 
     /// <summary>
-    /// Current calendar mode (personal or shared).
+    /// Current calendar mode.
     /// </summary>
     public ViewMode Mode { get; set; }
 
     /// <summary>
-    /// Minimum duration in minutes for free time intervals.
+    /// Minimum duration in minutes for shared free intervals.
     /// </summary>
     public int MinimumDurationMinutes { get; set; } = 60;
 
     /// <summary>
-    /// Optional slot length in minutes for splitting free time.
+    /// Optional slot length in minutes used for splitting free intervals.
     /// </summary>
     public int? SlotLengthMinutes { get; set; }
 
     /// <summary>
-    /// Identifier of the current user.
+    /// Identifier of the currently signed-in user.
     /// </summary>
     public Guid CurrentUserId { get; set; }
 
     /// <summary>
-    /// Selected user identifiers for shared view.
+    /// Selected user identifiers in shared mode.
     /// </summary>
     public List<Guid> SelectedUserIds { get; set; } = new();
 
     /// <summary>
-    /// Users available for selection.
+    /// Users that can be selected for shared availability search.
     /// </summary>
     public List<SelectableUserViewModel> AvailableUsers { get; set; } = new();
 
     /// <summary>
-    /// Calendar grid cells for the current view.
+    /// Calendar cells displayed in the current view.
     /// </summary>
     public List<CalendarCellViewModel> Cells { get; set; } = new();
 
     /// <summary>
-    /// Events to display in personal mode.
+    /// Events displayed in personal mode.
     /// </summary>
     public List<EventDto> Events { get; set; } = new();
 
     /// <summary>
-    /// Free intervals to display in shared mode.
+    /// Free intervals displayed in shared mode.
     /// </summary>
     public List<TimeInterval> FreeIntervals { get; set; } = new();
 
     /// <summary>
-    /// Visual blocks rendered in the calendar grid.
+    /// Visual blocks rendered into the calendar grid.
     /// </summary>
     public List<CalendarBlockViewModel> Blocks { get; set; } = new();
 
     /// <summary>
-    /// Hour labels for the time axis.
+    /// Hour labels shown along the time axis.
     /// </summary>
     public List<int> HourLabels { get; set; } = new();
 
     /// <summary>
-    /// Previous date for navigation.
+    /// Previous date used for navigation.
     /// </summary>
     public DateTime PreviousDate { get; set; }
 
     /// <summary>
-    /// Next date for navigation.
+    /// Next date used for navigation.
     /// </summary>
     public DateTime NextDate { get; set; }
 
     /// <summary>
-    /// Start hour for the visible day range.
+    /// First visible hour of the day.
     /// </summary>
     public int DayStartHour { get; set; } = 0;
 
     /// <summary>
-    /// End hour for the visible day range.
+    /// Last visible hour of the day.
     /// </summary>
     public int DayEndHour { get; set; } = 24;
 
     /// <summary>
-    /// Label describing the current mode.
+    /// Display label of the active mode.
     /// </summary>
     public string ModeLabel => Mode == ViewMode.Personal
         ? "Saját események"
         : "Közös szabad idősávok";
 
     /// <summary>
-    /// Label describing the current period.
+    /// Display label of the currently shown period.
     /// </summary>
     public string CurrentPeriodLabel
     {
@@ -118,6 +118,9 @@ public class CalendarPageViewModel
         }
     }
 
+    /// <summary>
+    /// Builds the display label for the current week.
+    /// </summary>
     private string GetWeekLabel()
     {
         var startOfWeek = GetStartOfWeek(CurrentDate);
@@ -126,6 +129,9 @@ public class CalendarPageViewModel
         return $"{startOfWeek:yyyy.MM.dd.} - {endOfWeek:yyyy.MM.dd.}";
     }
 
+    /// <summary>
+    /// Calculates the Monday start of the week.
+    /// </summary>
     private static DateTime GetStartOfWeek(DateTime date)
     {
         int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;

@@ -1,20 +1,22 @@
 ﻿namespace AvailabilityCalendar.Web.ViewModels.Calendar;
 
 /// <summary>
-/// Defines supported calendar view modes.
+/// Defines the supported calendar view types.
 /// </summary>
 public enum CalendarViewType
 {
     /// <summary>
-    /// Day view.
+    /// Single day view.
     /// </summary>
     Day = 0,
+
     /// <summary>
-    /// Week view.
+    /// Seven day week view.
     /// </summary>
     Week = 1,
+
     /// <summary>
-    /// Month view.
+    /// Month grid view.
     /// </summary>
     Month = 2
 }

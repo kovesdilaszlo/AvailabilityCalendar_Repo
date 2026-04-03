@@ -7,17 +7,24 @@ using AvailabilityCalendar.Domain.ValueObjects;
 namespace AvailabilityCalendar.Application.Services;
 
 /// <summary>
-/// Implements event management operations.
+/// Service responsible for creating, reading, updating and deleting events.
 /// </summary>
 public class EventService : IEventService
 {
     private readonly IEventRepository _eventRepository;
 
+    /// <summary>
+    /// Creates a new event service instance.
+    /// </summary>
     public EventService(IEventRepository eventRepository)
     {
         _eventRepository = eventRepository;
     }
 
+    /// <summary>
+    /// Creates a new event and automatically adds the current user
+    /// to the participant list.
+    /// </summary>
     public async Task<Guid> CreateEventAsync(CreateEventCommand command)
     {
         if (string.IsNullOrWhiteSpace(command.Title))
@@ -28,14 +35,15 @@ public class EventService : IEventService
         var ev = new Event
         {
             Id = Guid.NewGuid(),
-            Title = command.Title.Trim(),
-            CreatedByUserId = command.CurrentUserId
+            Title = command.Title.Trim()
         };
 
         ev.UpdateTime(command.Start, command.End);
 
+        // The current user is always included as a participant.
         ev.AddParticipant(command.CurrentUserId);
 
+        // Any additionally selected users are also attached to the event.
         foreach (var participantId in command.ParticipantIds.Distinct())
         {
             ev.AddParticipant(participantId);
@@ -46,6 +54,10 @@ public class EventService : IEventService
         return ev.Id;
     }
 
+    /// <summary>
+    /// Gets all events associated with the specified user
+    /// within the given time range.
+    /// </summary>
     public async Task<List<EventDto>> GetEventsByUserAsync(Guid userId, TimeInterval range)
     {
         var events = await _eventRepository.GetByUsersAsync(new List<Guid> { userId }, range);
@@ -59,7 +71,6 @@ public class EventService : IEventService
                 Title = e.Title,
                 Start = e.Start,
                 End = e.End,
-                CreatedByUserId = e.CreatedByUserId,
                 ParticipantIds = e.Participants
                     .Select(p => p.UserId)
                     .Distinct()
@@ -68,6 +79,11 @@ public class EventService : IEventService
             .ToList();
     }
 
+    /// <summary>
+    /// Updates an existing event.
+    /// Only participants of the event are allowed to modify it
+    /// in the simplified collaborative model.
+    /// </summary>
     public async Task UpdateEventAsync(UpdateEventCommand command)
     {
         var ev = await _eventRepository.GetByIdAsync(command.EventId);
@@ -77,9 +93,9 @@ public class EventService : IEventService
             throw new InvalidOperationException("Event not found.");
         }
 
-        if (!ev.IsCreatedBy(command.CurrentUserId))
+        if (!ev.HasParticipant(command.CurrentUserId))
         {
-            throw new UnauthorizedAccessException("Only the creator can update the event.");
+            throw new UnauthorizedAccessException("Only a participant can update the event.");
         }
 
         if (string.IsNullOrWhiteSpace(command.Title))
@@ -93,6 +109,11 @@ public class EventService : IEventService
         await _eventRepository.UpdateAsync(ev);
     }
 
+    /// <summary>
+    /// Deletes an existing event.
+    /// Only participants of the event are allowed to delete it
+    /// in the simplified collaborative model.
+    /// </summary>
     public async Task DeleteEventAsync(Guid eventId, Guid currentUserId)
     {
         var ev = await _eventRepository.GetByIdAsync(eventId);
@@ -102,9 +123,9 @@ public class EventService : IEventService
             throw new InvalidOperationException("Event not found.");
         }
 
-        if (!ev.IsCreatedBy(currentUserId))
+        if (!ev.HasParticipant(currentUserId))
         {
-            throw new UnauthorizedAccessException("Only the creator can delete the event.");
+            throw new UnauthorizedAccessException("Only a participant can delete the event.");
         }
 
         await _eventRepository.DeleteAsync(eventId);

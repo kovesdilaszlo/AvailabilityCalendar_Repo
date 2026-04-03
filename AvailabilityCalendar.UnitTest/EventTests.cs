@@ -16,7 +16,6 @@ public class EventTests
         {
             Id = Guid.NewGuid(),
             Title = "Meeting",
-            CreatedByUserId = Guid.NewGuid(),
             Start = new DateTime(2026, 3, 20, 10, 0, 0),
             End = new DateTime(2026, 3, 20, 11, 0, 0)
         };
@@ -39,7 +38,6 @@ public class EventTests
         {
             Id = Guid.NewGuid(),
             Title = "Meeting",
-            CreatedByUserId = Guid.NewGuid(),
             Start = new DateTime(2026, 3, 20, 10, 0, 0),
             End = new DateTime(2026, 3, 20, 11, 0, 0)
         };
@@ -62,8 +60,7 @@ public class EventTests
         var ev = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "Meeting",
-            CreatedByUserId = Guid.NewGuid()
+            Title = "Meeting"
         };
 
         var userId = Guid.NewGuid();
@@ -83,8 +80,7 @@ public class EventTests
         var ev = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "Meeting",
-            CreatedByUserId = Guid.NewGuid()
+            Title = "Meeting"
         };
 
         ev.AddParticipant(Guid.NewGuid());
@@ -104,8 +100,7 @@ public class EventTests
         var ev = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "Meeting",
-            CreatedByUserId = Guid.NewGuid()
+            Title = "Meeting"
         };
 
         var newStart = new DateTime(2026, 3, 20, 13, 0, 0);
@@ -126,8 +121,7 @@ public class EventTests
         var ev = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "Meeting",
-            CreatedByUserId = Guid.NewGuid()
+            Title = "Meeting"
         };
 
         var invalidStart = new DateTime(2026, 3, 20, 15, 0, 0);
@@ -140,43 +134,4 @@ public class EventTests
         Assert.Throws<ArgumentException>(act);
     }
 
-    [Fact]
-    public void IsCreatedBy_ShouldReturnTrue_WhenUserIsCreator()
-    {
-        // Arrange
-        var creatorId = Guid.NewGuid();
-        var ev = new Event
-        {
-            Id = Guid.NewGuid(),
-            Title = "Meeting",
-            CreatedByUserId = creatorId
-        };
-
-        // Act
-        var result = ev.IsCreatedBy(creatorId);
-
-        // Assert
-        Assert.True(result);
-    }
-
-    [Fact]
-    public void IsCreatedBy_ShouldReturnFalse_WhenUserIsNotCreator()
-    {
-        // Arrange
-        var creatorId = Guid.NewGuid();
-        var otherUserId = Guid.NewGuid();
-
-        var ev = new Event
-        {
-            Id = Guid.NewGuid(),
-            Title = "Meeting",
-            CreatedByUserId = creatorId
-        };
-
-        // Act
-        var result = ev.IsCreatedBy(otherUserId);
-
-        // Assert
-        Assert.False(result);
-    }
 }

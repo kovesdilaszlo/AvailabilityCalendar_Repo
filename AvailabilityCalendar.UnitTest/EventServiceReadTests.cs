@@ -26,8 +26,7 @@ public class EventServiceReadTests
         var event1 = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "Later event",
-            CreatedByUserId = creatorId
+            Title = "Later event"
         };
         event1.UpdateTime(
             new DateTime(2026, 3, 21, 12, 0, 0),
@@ -37,8 +36,7 @@ public class EventServiceReadTests
         var event2 = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "Earlier event",
-            CreatedByUserId = creatorId
+            Title = "Earlier event"
         };
         event2.UpdateTime(
             new DateTime(2026, 3, 21, 9, 0, 0),
@@ -49,8 +47,7 @@ public class EventServiceReadTests
         var event3 = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "Other user's event",
-            CreatedByUserId = creatorId
+            Title = "Other user's event"
         };
         event3.UpdateTime(
             new DateTime(2026, 3, 21, 8, 0, 0),
@@ -91,8 +88,7 @@ public class EventServiceReadTests
         var otherEvent = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "Someone else's event",
-            CreatedByUserId = creatorId
+            Title = "Someone else's event"
         };
         otherEvent.UpdateTime(
             new DateTime(2026, 3, 21, 8, 0, 0),

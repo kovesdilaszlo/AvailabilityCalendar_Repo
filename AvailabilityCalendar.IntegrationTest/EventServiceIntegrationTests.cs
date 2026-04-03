@@ -38,7 +38,6 @@ public class EventServiceIntegrationTests
             .SingleAsync(e => e.Id == id);
 
         Assert.Equal("Integration Event", saved.Title);
-        Assert.Equal(creator, saved.CreatedByUserId);
 
         var participants = saved.Participants.Select(p => p.UserId).ToList();
 
@@ -152,7 +151,7 @@ public class EventServiceIntegrationTests
     }
 
     [Fact]
-    public async Task UpdateEventAsync_Should_Throw_WhenUserIsNotCreator_WithRealDatabase()
+    public async Task UpdateEventAsync_Should_Update_WhenUserIsParticipant_WithRealDatabase()
     {
         // Arrange
         using var context = TestDbContextFactory.Create();
@@ -183,17 +182,14 @@ public class EventServiceIntegrationTests
         };
 
         // Act
-        var act = () => service.UpdateEventAsync(updateCommand);
-
-        // Assert
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(act);
+        await service.UpdateEventAsync(updateCommand);
 
         var saved = await context.Events.SingleAsync(e => e.Id == eventId);
-        Assert.Equal("Protected Event", saved.Title);
+        Assert.Equal("Hacked Title", saved.Title);
     }
 
     [Fact]
-    public async Task DeleteEventAsync_Should_Throw_WhenUserIsNotCreator_WithRealDatabase()
+    public async Task DeleteEventAsync_Should_Delete_WhenUserIsParticipant_WithRealDatabase()
     {
         // Arrange
         using var context = TestDbContextFactory.Create();
@@ -215,10 +211,9 @@ public class EventServiceIntegrationTests
         var eventId = await service.CreateEventAsync(createCommand);
 
         // Act
-        var act = () => service.DeleteEventAsync(eventId, otherUser);
+        await service.DeleteEventAsync(eventId, otherUser);
 
         // Assert
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(act);
-        Assert.True(await context.Events.AnyAsync(e => e.Id == eventId));
+        Assert.False(await context.Events.AnyAsync(e => e.Id == eventId));
     }
 }

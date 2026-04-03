@@ -7,14 +7,14 @@ using Microsoft.EntityFrameworkCore;
 namespace AvailabilityCalendar.Infrastructure.Repositories;
 
 /// <summary>
-/// Provides data access for Event entities.
+/// Provides data access operations for <see cref="Event"/> entities.
 /// </summary>
 public class EventRepository : IEventRepository
 {
     private readonly AvailabilityCalendarDbContext _dbContext;
 
     /// <summary>
-    /// Initializes the repository with the database context.
+    /// Creates a new repository instance using the given database context.
     /// </summary>
     public EventRepository(AvailabilityCalendarDbContext dbContext)
     {
@@ -22,7 +22,7 @@ public class EventRepository : IEventRepository
     }
 
     /// <summary>
-    /// Gets an event by its identifier, including participants.
+    /// Gets an event by its identifier, including its participants.
     /// </summary>
     public async Task<Event?> GetByIdAsync(Guid id)
     {
@@ -32,7 +32,7 @@ public class EventRepository : IEventRepository
     }
 
     /// <summary>
-    /// Gets events that include any of the specified users within a time range.
+    /// Gets all events that belong to any of the specified users within the given time range.
     /// </summary>
     public async Task<List<Event>> GetByUsersAsync(List<Guid> userIds, TimeInterval range)
     {
@@ -59,7 +59,7 @@ public class EventRepository : IEventRepository
     }
 
     /// <summary>
-    /// Adds a new event and persists changes.
+    /// Adds a new event and saves the change immediately.
     /// </summary>
     public async Task AddAsync(Event entity)
     {
@@ -70,7 +70,7 @@ public class EventRepository : IEventRepository
     }
 
     /// <summary>
-    /// Updates an existing event and persists changes.
+    /// Updates the editable properties of an existing event and saves the change immediately.
     /// </summary>
     public async Task UpdateAsync(Event entity)
     {
@@ -84,16 +84,18 @@ public class EventRepository : IEventRepository
             throw new InvalidOperationException("Event not found.");
         }
 
+        // Only the mutable event data is updated here.
+        // The creator relationship was removed from the domain model,
+        // so there is no CreatedByUserId to maintain anymore.
         existing.Title = entity.Title;
         existing.Start = entity.Start;
         existing.End = entity.End;
-        existing.CreatedByUserId = entity.CreatedByUserId;
 
         await _dbContext.SaveChangesAsync();
     }
 
     /// <summary>
-    /// Deletes an event by identifier if it exists.
+    /// Deletes an event by its identifier if it exists.
     /// </summary>
     public async Task DeleteAsync(Guid id)
     {

@@ -3,12 +3,12 @@
 namespace AvailabilityCalendar.Web.Extensions;
 
 /// <summary>
-/// Extension methods for accessing authenticated user information.
+/// Extension methods for reading authenticated user information.
 /// </summary>
 public static class UserExtensions
 {
     /// <summary>
-    /// Gets the current user's identifier from claims.
+    /// Gets the currently authenticated user's identifier from claims.
     /// </summary>
     public static Guid GetUserId(this ClaimsPrincipal user)
     {

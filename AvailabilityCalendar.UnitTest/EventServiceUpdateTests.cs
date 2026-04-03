@@ -25,9 +25,9 @@ public class EventServiceUpdateTests
         var existingEvent = new Event
         {
             Id = eventId,
-            Title = "Old title",
-            CreatedByUserId = creatorId
+            Title = "Old title"
         };
+        existingEvent.AddParticipant(creatorId);
         existingEvent.UpdateTime(
             new DateTime(2026, 3, 21, 10, 0, 0),
             new DateTime(2026, 3, 21, 11, 0, 0));
@@ -102,9 +102,9 @@ public class EventServiceUpdateTests
         var existingEvent = new Event
         {
             Id = eventId,
-            Title = "Old title",
-            CreatedByUserId = creatorId
+            Title = "Old title"
         };
+        existingEvent.AddParticipant(creatorId);
         existingEvent.UpdateTime(
             new DateTime(2026, 3, 21, 10, 0, 0),
             new DateTime(2026, 3, 21, 11, 0, 0));
@@ -144,9 +144,9 @@ public class EventServiceUpdateTests
         var existingEvent = new Event
         {
             Id = eventId,
-            Title = "Old title",
-            CreatedByUserId = creatorId
+            Title = "Old title"
         };
+        existingEvent.AddParticipant(creatorId);
         existingEvent.UpdateTime(
             new DateTime(2026, 3, 21, 10, 0, 0),
             new DateTime(2026, 3, 21, 11, 0, 0));
@@ -185,9 +185,9 @@ public class EventServiceUpdateTests
             Id = eventId,
             Title = "Meeting",
             Start = DateTime.Now,
-            End = DateTime.Now.AddHours(1),
-            CreatedByUserId = creatorId
+            End = DateTime.Now.AddHours(1)
         };
+        ev.AddParticipant(creatorId);
 
         var repoMock = new Mock<IEventRepository>();
         repoMock.Setup(r => r.GetByIdAsync(eventId))
@@ -222,9 +222,9 @@ public class EventServiceUpdateTests
         var ev = new Event
         {
             Id = eventId,
-            Title = "Original title",
-            CreatedByUserId = creatorId
+            Title = "Original title"
         };
+        ev.AddParticipant(creatorId);
         ev.UpdateTime(
             new DateTime(2026, 3, 21, 9, 0, 0),
             new DateTime(2026, 3, 21, 10, 0, 0));

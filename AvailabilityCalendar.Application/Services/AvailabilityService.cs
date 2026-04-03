@@ -5,23 +5,33 @@ using AvailabilityCalendar.Domain.ValueObjects;
 namespace AvailabilityCalendar.Application.Services;
 
 /// <summary>
-/// Implements availability calculations for users and time ranges.
+/// Service responsible for calculating common free time intervals.
 /// </summary>
 public class AvailabilityService : IAvailabilityService
 {
     private readonly IEventRepository _eventRepository;
 
+    /// <summary>
+    /// Creates a new availability service instance.
+    /// </summary>
     public AvailabilityService(IEventRepository eventRepository)
     {
         _eventRepository = eventRepository;
     }
 
+    /// <summary>
+    /// Determines whether the current calendar view is personal or shared.
+    /// </summary>
     public ViewMode DetermineViewMode(List<Guid> selectedUsers, Guid currentUserId)
     {
         var normalized = NormalizeSelection(selectedUsers, currentUserId);
         return normalized.Count == 1 ? ViewMode.Personal : ViewMode.Shared;
     }
 
+    /// <summary>
+    /// Removes duplicates from the selected user list
+    /// and makes sure the current user is always present.
+    /// </summary>
     public List<Guid> NormalizeSelection(List<Guid> selectedUsers, Guid currentUserId)
     {
         selectedUsers ??= new List<Guid>();
@@ -38,6 +48,9 @@ public class AvailabilityService : IAvailabilityService
         return result;
     }
 
+    /// <summary>
+    /// Merges overlapping or directly adjacent intervals into larger intervals.
+    /// </summary>
     public List<TimeInterval> MergeIntervals(List<TimeInterval> intervals)
     {
         if (intervals is null || intervals.Count == 0)
@@ -69,6 +82,10 @@ public class AvailabilityService : IAvailabilityService
         return merged;
     }
 
+    /// <summary>
+    /// Calculates the common free time intervals for the selected users
+    /// inside the specified visible time range.
+    /// </summary>
     public async Task<List<TimeInterval>> GetCommonFreeTimeAsync(
         List<Guid> userIds,
         TimeInterval range,

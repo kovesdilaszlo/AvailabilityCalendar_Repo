@@ -21,7 +21,7 @@ public class CalendarController : Controller
     private readonly IUserRepository _userRepository;
 
     /// <summary>
-    /// Initializes the calendar controller.
+    /// Creates a new calendar controller instance.
     /// </summary>
     public CalendarController(
         IEventService eventService,
@@ -34,7 +34,7 @@ public class CalendarController : Controller
     }
 
     /// <summary>
-    /// Displays the calendar for the requested date and view.
+    /// Displays the calendar for the requested date and view mode.
     /// </summary>
     [HttpGet]
     public async Task<IActionResult> Index(
@@ -132,7 +132,7 @@ public class CalendarController : Controller
     }
 
     /// <summary>
-    /// Shows the event creation form.
+    /// Displays the standalone event creation page.
     /// </summary>
     [HttpGet]
     public IActionResult Create(DateTime? date)
@@ -185,7 +185,7 @@ public class CalendarController : Controller
     }
 
     /// <summary>
-    /// Creates a new event based on a selected free time slot.
+    /// Creates a new event from a selected free time slot in shared mode.
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -314,7 +314,7 @@ public class CalendarController : Controller
     }
 
     /// <summary>
-    /// Builds the visible date range for the selected view.
+    /// Builds the visible time range for the selected view.
     /// </summary>
     private static TimeInterval BuildRange(CalendarViewType view, DateTime currentDate)
     {
@@ -332,7 +332,7 @@ public class CalendarController : Controller
     }
 
     /// <summary>
-    /// Builds the calendar grid cells for the selected view.
+    /// Builds the calendar grid cells for the current view.
     /// </summary>
     private static List<CalendarCellViewModel> BuildCells(CalendarViewType view, DateTime currentDate)
     {
@@ -363,7 +363,7 @@ public class CalendarController : Controller
     }
 
     /// <summary>
-    /// Builds the grid cells for week view.
+    /// Builds the seven day cells for week view.
     /// </summary>
     private static List<CalendarCellViewModel> BuildWeekCells(DateTime currentDate)
     {
@@ -386,7 +386,7 @@ public class CalendarController : Controller
     }
 
     /// <summary>
-    /// Builds the grid cells for month view.
+    /// Builds the 6x7 month grid cells.
     /// </summary>
     private static List<CalendarCellViewModel> BuildMonthCells(DateTime currentDate)
     {
@@ -410,7 +410,7 @@ public class CalendarController : Controller
     }
 
     /// <summary>
-    /// Gets the previous date for the selected view.
+    /// Calculates the previous date for navigation.
     /// </summary>
     private static DateTime GetPreviousDate(CalendarViewType view, DateTime currentDate)
     {
@@ -424,7 +424,7 @@ public class CalendarController : Controller
     }
 
     /// <summary>
-    /// Gets the next date for the selected view.
+    /// Calculates the next date for navigation.
     /// </summary>
     private static DateTime GetNextDate(CalendarViewType view, DateTime currentDate)
     {
@@ -438,7 +438,7 @@ public class CalendarController : Controller
     }
 
     /// <summary>
-    /// Splits free time intervals into slot-sized segments.
+    /// Splits free intervals into fixed-size slots.
     /// </summary>
     private static List<TimeInterval> SplitIntervalsIntoSlots(
         IEnumerable<TimeInterval> intervals,
@@ -478,7 +478,7 @@ public class CalendarController : Controller
     }
 
     /// <summary>
-    /// Builds visual blocks for events or free time depending on view mode.
+    /// Builds visual calendar blocks for either personal events or free time intervals.
     /// </summary>
     private static List<CalendarBlockViewModel> BuildBlocks(
         CalendarViewType view,
@@ -529,7 +529,6 @@ public class CalendarController : Controller
     {
         return SplitIntoDailyBlocks(
             ev.Id,
-            ev.CreatedByUserId,
             ev.Start,
             ev.End,
             ev.Title,
@@ -552,7 +551,6 @@ public class CalendarController : Controller
     {
         return SplitIntoDailyBlocks(
             null,
-            null,
             interval.Start,
             interval.End,
             "Szabad",
@@ -564,11 +562,10 @@ public class CalendarController : Controller
     }
 
     /// <summary>
-    /// Splits a time span into day-aligned blocks for display.
+    /// Splits a time span into day-aligned display blocks.
     /// </summary>
     private static IEnumerable<CalendarBlockViewModel> SplitIntoDailyBlocks(
         Guid? eventId,
-        Guid? createdByUserId,
         DateTime start,
         DateTime end,
         string title,
@@ -609,7 +606,6 @@ public class CalendarController : Controller
 
                 var block = BuildBlock(
                     eventId,
-                    createdByUserId,
                     currentDay,
                     visibleStart,
                     visibleEnd,
@@ -633,11 +629,10 @@ public class CalendarController : Controller
     }
 
     /// <summary>
-    /// Builds a single display block for a day segment.
+    /// Builds a single visual block for one day segment.
     /// </summary>
     private static CalendarBlockViewModel? BuildBlock(
         Guid? eventId,
-        Guid? createdByUserId,
         DateTime day,
         DateTime start,
         DateTime end,
@@ -678,7 +673,6 @@ public class CalendarController : Controller
         return new CalendarBlockViewModel
         {
             EventId = eventId,
-            CreatedByUserId = createdByUserId,
             Date = day.Date,
             Start = start,
             End = end,
@@ -714,7 +708,7 @@ public class CalendarController : Controller
     }
 
     /// <summary>
-    /// Calculates the Monday start of the week for the given date.
+    /// Gets the Monday start of the week for the specified date.
     /// </summary>
     private static DateTime GetStartOfWeek(DateTime date)
     {

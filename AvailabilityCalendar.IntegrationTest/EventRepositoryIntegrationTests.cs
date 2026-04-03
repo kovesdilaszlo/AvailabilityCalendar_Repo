@@ -20,8 +20,7 @@ public class EventRepositoryIntegrationTests
         var event1 = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "User1 Event",
-            CreatedByUserId = user1
+            Title = "User1 Event"
         };
         event1.UpdateTime(
             new DateTime(2026, 3, 26, 10, 0, 0),
@@ -31,8 +30,7 @@ public class EventRepositoryIntegrationTests
         var event2 = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "User2 Event",
-            CreatedByUserId = user2
+            Title = "User2 Event"
         };
         event2.UpdateTime(
             new DateTime(2026, 3, 26, 12, 0, 0),
@@ -42,8 +40,7 @@ public class EventRepositoryIntegrationTests
         var outsideRangeEvent = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "Outside Range",
-            CreatedByUserId = user1
+            Title = "Outside Range"
         };
         outsideRangeEvent.UpdateTime(
             new DateTime(2026, 3, 27, 10, 0, 0),
@@ -80,8 +77,7 @@ public class EventRepositoryIntegrationTests
         var event1 = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "User1 Event",
-            CreatedByUserId = user1
+            Title = "User1 Event"
         };
         event1.UpdateTime(
             new DateTime(2026, 3, 26, 9, 0, 0),
@@ -91,8 +87,7 @@ public class EventRepositoryIntegrationTests
         var event2 = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "User2 Event",
-            CreatedByUserId = user2
+            Title = "User2 Event"
         };
         event2.UpdateTime(
             new DateTime(2026, 3, 26, 11, 0, 0),
@@ -102,8 +97,7 @@ public class EventRepositoryIntegrationTests
         var event3 = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "User3 Event",
-            CreatedByUserId = user3
+            Title = "User3 Event"
         };
         event3.UpdateTime(
             new DateTime(2026, 3, 26, 13, 0, 0),
@@ -139,8 +133,7 @@ public class EventRepositoryIntegrationTests
         var overlappingEvent = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "Partially overlapping event",
-            CreatedByUserId = user
+            Title = "Partially overlapping event"
         };
         overlappingEvent.UpdateTime(
             new DateTime(2026, 3, 26, 8, 30, 0),
@@ -175,8 +168,7 @@ public class EventRepositoryIntegrationTests
         var unrelatedEvent = new Event
         {
             Id = Guid.NewGuid(),
-            Title = "Unrelated",
-            CreatedByUserId = otherUser
+            Title = "Unrelated"
         };
         unrelatedEvent.UpdateTime(
             new DateTime(2026, 3, 26, 10, 0, 0),

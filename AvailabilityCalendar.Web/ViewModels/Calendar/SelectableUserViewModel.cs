@@ -21,7 +21,7 @@ public class SelectableUserViewModel
     public bool IsSelected { get; set; }
 
     /// <summary>
-    /// Indicates whether the user is the current signed-in user.
+    /// Indicates whether the listed user is the currently signed-in user.
     /// </summary>
     public bool IsCurrentUser { get; set; }
 }

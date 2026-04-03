@@ -83,8 +83,7 @@ public class AvailabilityServiceFreeTimeTests
                 Id = Guid.NewGuid(),
                 Title = "All day busy",
                 Start = new DateTime(2026, 3, 24, 9, 0, 0),
-                End = new DateTime(2026, 3, 24, 17, 0, 0),
-                CreatedByUserId = userId
+                End = new DateTime(2026, 3, 24, 17, 0, 0)
             }
         };
 
@@ -118,16 +117,14 @@ public class AvailabilityServiceFreeTimeTests
                 Id = Guid.NewGuid(),
                 Title = "Morning busy",
                 Start = new DateTime(2026, 1, 1, 9, 0, 0),
-                End = new DateTime(2026, 1, 1, 11, 0, 0),
-                CreatedByUserId = userIds[0]
+                End = new DateTime(2026, 1, 1, 11, 0, 0)
             },
             new()
             {
                 Id = Guid.NewGuid(),
                 Title = "Afternoon busy",
                 Start = new DateTime(2026, 1, 1, 13, 0, 0),
-                End = new DateTime(2026, 1, 1, 17, 0, 0),
-                CreatedByUserId = userIds[1]
+                End = new DateTime(2026, 1, 1, 17, 0, 0)
             }
         };
 
@@ -165,16 +162,14 @@ public class AvailabilityServiceFreeTimeTests
                 Id = Guid.NewGuid(),
                 Title = "Busy 1",
                 Start = new DateTime(2026, 1, 1, 9, 0, 0),
-                End = new DateTime(2026, 1, 1, 12, 0, 0),
-                CreatedByUserId = userIds[0]
+                End = new DateTime(2026, 1, 1, 12, 0, 0)
             },
             new()
             {
                 Id = Guid.NewGuid(),
                 Title = "Busy 2",
                 Start = new DateTime(2026, 1, 1, 11, 0, 0),
-                End = new DateTime(2026, 1, 1, 14, 0, 0),
-                CreatedByUserId = userIds[1]
+                End = new DateTime(2026, 1, 1, 14, 0, 0)
             }
         };
 
@@ -209,7 +204,6 @@ public class AvailabilityServiceFreeTimeTests
         {
             Id = Guid.NewGuid(),
             Title = "Starts before range",
-            CreatedByUserId = userId,
             Start = new DateTime(2026, 3, 22, 7, 0, 0),
             End = new DateTime(2026, 3, 22, 10, 0, 0)
         };
@@ -218,7 +212,6 @@ public class AvailabilityServiceFreeTimeTests
         {
             Id = Guid.NewGuid(),
             Title = "Ends after range",
-            CreatedByUserId = userId,
             Start = new DateTime(2026, 3, 22, 15, 0, 0),
             End = new DateTime(2026, 3, 22, 19, 0, 0)
         };
@@ -255,7 +248,6 @@ public class AvailabilityServiceFreeTimeTests
         {
             Id = Guid.NewGuid(),
             Title = "Before range",
-            CreatedByUserId = userId,
             Start = new DateTime(2026, 3, 22, 6, 0, 0),
             End = new DateTime(2026, 3, 22, 8, 0, 0)
         };
@@ -264,7 +256,6 @@ public class AvailabilityServiceFreeTimeTests
         {
             Id = Guid.NewGuid(),
             Title = "After range",
-            CreatedByUserId = userId,
             Start = new DateTime(2026, 3, 22, 18, 0, 0),
             End = new DateTime(2026, 3, 22, 19, 0, 0)
         };
@@ -301,7 +292,6 @@ public class AvailabilityServiceFreeTimeTests
         {
             Id = Guid.NewGuid(),
             Title = "Later",
-            CreatedByUserId = userId,
             Start = new DateTime(2026, 3, 22, 13, 0, 0),
             End = new DateTime(2026, 3, 22, 14, 0, 0)
         };
@@ -310,7 +300,6 @@ public class AvailabilityServiceFreeTimeTests
         {
             Id = Guid.NewGuid(),
             Title = "Earlier",
-            CreatedByUserId = userId,
             Start = new DateTime(2026, 3, 22, 10, 0, 0),
             End = new DateTime(2026, 3, 22, 11, 0, 0)
         };
@@ -386,16 +375,14 @@ public class AvailabilityServiceFreeTimeTests
                 Id = Guid.NewGuid(),
                 Title = "Morning busy",
                 Start = new DateTime(2026, 1, 1, 9, 0, 0),
-                End = new DateTime(2026, 1, 1, 10, 0, 0),
-                CreatedByUserId = userIds[0]
+                End = new DateTime(2026, 1, 1, 10, 0, 0)
             },
             new()
             {
                 Id = Guid.NewGuid(),
                 Title = "Noon busy",
                 Start = new DateTime(2026, 1, 1, 11, 0, 0),
-                End = new DateTime(2026, 1, 1, 17, 0, 0),
-                CreatedByUserId = userIds[1]
+                End = new DateTime(2026, 1, 1, 17, 0, 0)
             }
         };
 
@@ -432,16 +419,14 @@ public class AvailabilityServiceFreeTimeTests
                 Id = Guid.NewGuid(),
                 Title = "Busy 1",
                 Start = new DateTime(2026, 1, 1, 9, 0, 0),
-                End = new DateTime(2026, 1, 1, 10, 0, 0),
-                CreatedByUserId = userIds[0]
+                End = new DateTime(2026, 1, 1, 10, 0, 0)
             },
             new()
             {
                 Id = Guid.NewGuid(),
                 Title = "Busy 2",
                 Start = new DateTime(2026, 1, 1, 12, 0, 0),
-                End = new DateTime(2026, 1, 1, 13, 0, 0),
-                CreatedByUserId = userIds[1]
+                End = new DateTime(2026, 1, 1, 13, 0, 0)
             }
         };
 

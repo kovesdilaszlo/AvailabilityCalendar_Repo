@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AvailabilityCalendar.Infrastructure.Migrations
 {
     [DbContext(typeof(AvailabilityCalendarDbContext))]
-    [Migration("20260318200500_InitialFullSchema")]
-    partial class InitialFullSchema
+    [Migration("20260403112920_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,9 +31,6 @@ namespace AvailabilityCalendar.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CreatedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("End")
                         .HasColumnType("datetime2");
 
@@ -46,8 +43,6 @@ namespace AvailabilityCalendar.Infrastructure.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedByUserId");
 
                     b.HasIndex("End");
 
@@ -284,17 +279,6 @@ namespace AvailabilityCalendar.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("AvailabilityCalendar.Domain.Entities.Event", b =>
-                {
-                    b.HasOne("AvailabilityCalendar.Domain.Entities.User", "CreatedByUser")
-                        .WithMany("CreatedEvents")
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CreatedByUser");
-                });
-
             modelBuilder.Entity("AvailabilityCalendar.Domain.Entities.EventParticipant", b =>
                 {
                     b.HasOne("AvailabilityCalendar.Domain.Entities.Event", "Event")
@@ -372,8 +356,6 @@ namespace AvailabilityCalendar.Infrastructure.Migrations
 
             modelBuilder.Entity("AvailabilityCalendar.Domain.Entities.User", b =>
                 {
-                    b.Navigation("CreatedEvents");
-
                     b.Navigation("EventParticipants");
                 });
 #pragma warning restore 612, 618

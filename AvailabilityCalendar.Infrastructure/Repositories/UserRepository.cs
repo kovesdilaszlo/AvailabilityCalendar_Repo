@@ -6,14 +6,14 @@ using Microsoft.EntityFrameworkCore;
 namespace AvailabilityCalendar.Infrastructure.Repositories;
 
 /// <summary>
-/// Provides data access for User entities.
+/// Provides data access operations for <see cref="User"/> entities.
 /// </summary>
 public class UserRepository : IUserRepository
 {
     private readonly AvailabilityCalendarDbContext _dbContext;
 
     /// <summary>
-    /// Initializes the repository with the database context.
+    /// Creates a new repository instance using the given database context.
     /// </summary>
     public UserRepository(AvailabilityCalendarDbContext dbContext)
     {
@@ -21,7 +21,7 @@ public class UserRepository : IUserRepository
     }
 
     /// <summary>
-    /// Gets a user by identifier.
+    /// Gets a user by its identifier.
     /// </summary>
     public async Task<User?> GetByIdAsync(Guid id)
     {
@@ -31,7 +31,7 @@ public class UserRepository : IUserRepository
     }
 
     /// <summary>
-    /// Gets users by a set of identifiers.
+    /// Gets all users whose identifiers are included in the provided list.
     /// </summary>
     public async Task<List<User>> GetByIdsAsync(List<Guid> ids)
     {

@@ -1,4 +1,4 @@
-﻿@* Calendar view showing schedules, free time, and navigation controls. *@
+﻿@* Calendar view showing personal events, shared free time, and navigation controls. *@
 @model AvailabilityCalendar.Web.ViewModels.Calendar.CalendarPageViewModel
 @using AvailabilityCalendar.Web.ViewModels.Calendar
 @using AvailabilityCalendar.Domain.Enums
@@ -35,7 +35,7 @@
 }
 
 @{
-    ViewData["Title"] = "Calendar";
+    ViewData["Title"] = "Naptár";
     var isPersonalMode = Model.Mode == ViewMode.Personal;
     var culture = new CultureInfo("hu-HU");
     var hourRowHeightPx = 64;
@@ -45,7 +45,7 @@
 <div class="container-fluid py-4 calendar-page">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
-            <h1 class="page-title">Availability Calendar</h1>
+            <h1 class="page-title">Naptár</h1>
             <p class="page-subtitle">Aktuális mód: <strong>@Model.ModeLabel</strong></p>
         </div>
 
@@ -105,20 +105,10 @@
                                name="selectedUsers"
                                value="@user.Id"
                                id="@checkboxId"
-                               checked="@user.IsSelected"
-                               disabled="@user.IsCurrentUser" />
+                               checked="@user.IsSelected" />
 
-                        @if (user.IsCurrentUser)
-                        {
-                            <input type="hidden" name="selectedUsers" value="@user.Id" />
-                        }
-
-                        <label class="user-chip-label @(user.IsCurrentUser ? "current-user" : "")" for="@checkboxId">
+                        <label class="user-chip-label" for="@checkboxId">
                             <span class="user-chip-text">@user.Name</span>
-                            @if (user.IsCurrentUser)
-                            {
-                                <span class="user-chip-badge">Te</span>
-                            }
                         </label>
                     </div>
                 }
@@ -561,7 +551,7 @@
                     </div>
 
                     <div class="alert alert-info">
-                        Ha megerősíted, az esemény az összes jelenleg kiválasztott felhasználó naptárába bekerül.
+                        Ha megerősíted, az esemény az összes jelenleg kiválasztott felhasználóhoz résztvevőként kapcsolódik.
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
