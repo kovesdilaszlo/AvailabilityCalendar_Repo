@@ -586,7 +586,7 @@ public class CalendarController : Controller
         }
 
         var currentDay = clippedStart.Date;
-        var lastDay = clippedEnd.Date;
+        var lastDay = GetLastRenderedDay(clippedStart, clippedEnd);
 
         while (currentDay <= lastDay)
         {
@@ -598,7 +598,12 @@ public class CalendarController : Controller
                 ? clippedEnd
                 : currentDay.AddDays(1);
 
-            var visibleSegment = ClipToVisibleHours(segmentStart, segmentEnd, dayStartHour, dayEndHour);
+            var visibleSegment = ClipToVisibleHours(
+                currentDay,
+                segmentStart,
+                segmentEnd,
+                dayStartHour,
+                dayEndHour);
 
             if (visibleSegment is not null)
             {
@@ -626,6 +631,20 @@ public class CalendarController : Controller
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Determines the last day that should actually receive a visual block.
+    /// If the interval ends exactly at midnight, the previous day is the last rendered day.
+    /// </summary>
+    private static DateTime GetLastRenderedDay(DateTime clippedStart, DateTime clippedEnd)
+    {
+        if (clippedEnd.TimeOfDay == TimeSpan.Zero && clippedEnd.Date > clippedStart.Date)
+        {
+            return clippedEnd.Date.AddDays(-1);
+        }
+
+        return clippedEnd.Date;
     }
 
     /// <summary>
@@ -663,6 +682,17 @@ public class CalendarController : Controller
             return null;
         }
 
+        var topPercent = (minutesFromDayStart / totalMinutes) * 100.0;
+        var heightPercent = (durationMinutes / totalMinutes) * 100.0;
+
+        topPercent = Math.Clamp(topPercent, 0.0, 100.0);
+        heightPercent = Math.Clamp(heightPercent, 0.0, 100.0 - topPercent);
+
+        if (heightPercent <= 0)
+        {
+            return null;
+        }
+
         var columnIndex = view switch
         {
             CalendarViewType.Day => 0,
@@ -678,23 +708,24 @@ public class CalendarController : Controller
             End = end,
             Title = title,
             IsFreeTime = isFreeTime,
-            TopPercent = (minutesFromDayStart / totalMinutes) * 100.0,
-            HeightPercent = (durationMinutes / totalMinutes) * 100.0,
+            TopPercent = topPercent,
+            HeightPercent = heightPercent,
             ColumnIndex = columnIndex
         };
     }
 
     /// <summary>
-    /// Clips a time range to the visible hours of a day.
+    /// Clips a time range to the visible hours of a specific day.
     /// </summary>
     private static (DateTime Start, DateTime End)? ClipToVisibleHours(
+        DateTime day,
         DateTime start,
         DateTime end,
         int dayStartHour,
         int dayEndHour)
     {
-        var visibleStart = start.Date.AddHours(dayStartHour);
-        var visibleEnd = start.Date.AddHours(dayEndHour);
+        var visibleStart = day.Date.AddHours(dayStartHour);
+        var visibleEnd = day.Date.AddHours(dayEndHour);
 
         var clippedStart = start < visibleStart ? visibleStart : start;
         var clippedEnd = end > visibleEnd ? visibleEnd : end;

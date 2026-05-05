@@ -114,8 +114,10 @@ public class AvailabilityCalendarDbContext
         {
             entity.ToTable("EventParticipants");
 
-            // Composite primary key ensures the same user
-            // cannot be added twice to the same event.
+            /*
+            Composite primary key ensures the same user
+            cannot be added twice to the same event.
+            */
             entity.HasKey(x => new { x.EventId, x.UserId });
 
             entity.HasOne(x => x.Event)

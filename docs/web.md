@@ -107,7 +107,6 @@ The Web layer contains controllers, page-level view models, Razor views, and UI 
 
 **Properties**
 - `Guid? EventId`
-- `Guid? CreatedByUserId`
 - `DateTime Date`
 - `DateTime Start`
 - `DateTime End`

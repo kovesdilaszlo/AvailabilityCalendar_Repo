@@ -35,7 +35,6 @@ IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 - table: `Users`
 - key: `Id`
 - `Name` required, max length 100
-- one-to-many with `CreatedEvents`
 - one-to-many with `EventParticipants`
 
 #### Event mapping
@@ -44,10 +43,8 @@ IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 - `Title` required, max length 200
 - `Start` required
 - `End` required
-- `CreatedByUserId` required
 - index on `Start`
 - index on `End`
-- index on `CreatedByUserId`
 
 #### EventParticipant mapping
 - table: `EventParticipants`

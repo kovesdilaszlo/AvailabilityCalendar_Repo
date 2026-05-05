@@ -16,7 +16,6 @@ Represents a domain-level calendar user.
 
 **Role in the system**
 - identifies a participant in the scheduling domain
-- acts as the creator of events
 - participates in events through the join entity
 
 ---
@@ -30,8 +29,6 @@ Represents a scheduled busy interval.
 - `string Title`
 - `DateTime Start`
 - `DateTime End`
-- `Guid CreatedByUserId`
-- `User? CreatedByUser`
 - `ICollection<EventParticipant> Participants`
 
 **Methods**
@@ -39,11 +36,9 @@ Represents a scheduled busy interval.
 - `void RemoveParticipant(Guid userId)`
 - `bool HasParticipant(Guid userId)`
 - `void UpdateTime(DateTime start, DateTime end)`
-- `bool IsCreatedBy(Guid userId)`
 
 **Role in the system**
 - stores the title and time boundaries of a busy period
-- keeps the creator information
 - keeps the participant list
 - enforces basic participant and time-related logic
 
