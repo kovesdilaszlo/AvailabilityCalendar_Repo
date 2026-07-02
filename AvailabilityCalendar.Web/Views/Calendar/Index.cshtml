@@ -56,29 +56,29 @@
                         <select class="form-select" name="view" onchange="this.form.submit()">
                             @if (Model.ViewType == CalendarViewType.Day)
                             {
-                                <option value="Day" selected>Nap</option>
+                                <option value="Day" selected>Napi</option>
                             }
                             else
                             {
-                                <option value="Day">Nap</option>
+                                <option value="Day">Napi</option>
                             }
 
                             @if (Model.ViewType == CalendarViewType.Week)
                             {
-                                <option value="Week" selected>Hét</option>
+                                <option value="Week" selected>Heti</option>
                             }
                             else
                             {
-                                <option value="Week">Hét</option>
+                                <option value="Week">Heti</option>
                             }
 
                             @if (Model.ViewType == CalendarViewType.Month)
                             {
-                                <option value="Month" selected>Hónap</option>
+                                <option value="Month" selected>Havi</option>
                             }
                             else
                             {
-                                <option value="Month">Hónap</option>
+                                <option value="Month">Havi</option>
                             }
                         </select>
                     </div>

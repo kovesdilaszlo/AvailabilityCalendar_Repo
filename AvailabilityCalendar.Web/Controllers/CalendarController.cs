@@ -489,11 +489,6 @@ public class CalendarController : Controller
         int dayStartHour,
         int dayEndHour)
     {
-        if (view == CalendarViewType.Month)
-        {
-            return new List<CalendarBlockViewModel>();
-        }
-
         var blocks = new List<CalendarBlockViewModel>();
 
         if (mode == ViewMode.Personal)
